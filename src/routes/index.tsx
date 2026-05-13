@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PublicNav } from "@/components/PublicNav";
 import { Footer } from "@/components/Footer";
 import shield from "@/assets/patag-shield.png";
-import { ArrowRight, Building2, Clock3, Scale, Search, Shield, Users } from "lucide-react";
+import { ArrowRight, Building2, Clock3, Gavel, Scale, Search, Shield } from "lucide-react";
 
 const FRONT_PAGE_HIGHLIGHTS = [
   {
@@ -27,11 +27,11 @@ const FRONT_PAGE_HIGHLIGHTS = [
     title: "Supreme Court publishes ruling on procurement transparency dispute",
     urgency: "New ruling",
     time: "Updated 1 hr ago",
-    icon: <Users className="h-5 w-5" />,
+    icon: <Gavel className="h-5 w-5" />,
     className: "from-mocha to-tan",
   },
   {
-    branch: "Constitutional",
+    branch: "Constitutional Bodies",
     title: "COA flags delayed liquidation of disaster funds in three regions",
     urgency: "Red flag",
     time: "Updated 1 hr ago",
@@ -101,14 +101,17 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const [activeHeadline, setActiveHeadline] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isHeadlineRotationPaused, setIsHeadlineRotationPaused] = useState(false);
 
   useEffect(() => {
+    if (isHeadlineRotationPaused) return;
+
     const interval = setInterval(() => {
       setActiveHeadline((current) => (current + 1) % TOP_HEADLINES.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isHeadlineRotationPaused]);
 
   const currentHeadline = TOP_HEADLINES[activeHeadline];
 
@@ -132,8 +135,8 @@ function Landing() {
               Public Access for Truth, Alliances, and Governance
             </p>
             <p className="mt-4 max-w-3xl text-sm leading-relaxed text-cream/90 md:text-base">
-              PATAG helps every Filipino quickly verify government actions. Start with search, scan
-              the front page dashboard for urgent branch updates, then use the action hub to
+              P.A.T.A.G. helps every Filipino quickly verify government actions. Start with search,
+              scan the front page dashboard for urgent branch updates, then use the action hub to
               participate in civic decisions.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:justify-start">
@@ -153,7 +156,7 @@ function Landing() {
                 to="/about"
                 className="inline-flex items-center gap-2 rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold text-cream hover:bg-white/10"
               >
-                About PATAG
+                About P.A.T.A.G.
               </Link>
             </div>
           </div>
@@ -172,10 +175,15 @@ function Landing() {
             onSubmit={(event) => event.preventDefault()}
             className="mt-6 flex flex-col gap-3 rounded-2xl border border-tan/60 bg-white p-3 shadow-card md:flex-row md:items-center"
           >
+            <label htmlFor="patag-global-search" className="sr-only">
+              Search PATAG for a politician, bill, agency, or issue
+            </label>
             <div className="flex flex-1 items-center gap-2 rounded-xl bg-cream/70 px-3">
               <Search className="h-4 w-4 text-coffee" />
               <input
+                id="patag-global-search"
                 aria-label="Search PATAG"
+                aria-describedby="search-examples"
                 className="w-full bg-transparent py-3 text-sm text-onyx outline-none placeholder:text-coffee/60"
                 placeholder="Type a politician, pending bill, agency, or trending issue"
                 value={searchQuery}
@@ -189,8 +197,9 @@ function Landing() {
               Search PATAG
             </button>
           </form>
-          <div className="mt-3 text-sm text-mocha">
+          <div id="search-examples" className="mt-3 text-sm text-mocha">
             Try: Republic Act updates · Senate Bill 1979 · COA findings · Public health issue
+            <span className="ml-2 text-xs">Search results integration coming soon.</span>
           </div>
         </div>
       </section>
@@ -299,7 +308,16 @@ function Landing() {
                 href={headline.url}
                 target="_blank"
                 rel="noreferrer"
-                onMouseEnter={() => setActiveHeadline(index)}
+                onMouseEnter={() => {
+                  setIsHeadlineRotationPaused(true);
+                  setActiveHeadline(index);
+                }}
+                onMouseLeave={() => setIsHeadlineRotationPaused(false)}
+                onFocus={() => {
+                  setIsHeadlineRotationPaused(true);
+                  setActiveHeadline(index);
+                }}
+                onBlur={() => setIsHeadlineRotationPaused(false)}
                 className={`group relative block overflow-hidden rounded-xl border shadow-card transition ${
                   index === activeHeadline ? "border-cocoa" : "border-tan/70"
                 }`}
