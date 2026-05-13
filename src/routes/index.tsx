@@ -100,13 +100,14 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const [activeHeadline, setActiveHeadline] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const interval = window.setInterval(() => {
+    const interval = setInterval(() => {
       setActiveHeadline((current) => (current + 1) % TOP_HEADLINES.length);
     }, 5000);
 
-    return () => window.clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   const currentHeadline = TOP_HEADLINES[activeHeadline];
@@ -167,17 +168,22 @@ function Landing() {
           <h2 className="mt-2 font-display text-3xl text-rust md:text-4xl">
             Search politicians, bills, agencies, or issues.
           </h2>
-          <form className="mt-6 flex flex-col gap-3 rounded-2xl border border-tan/60 bg-white p-3 shadow-card md:flex-row md:items-center">
+          <form
+            onSubmit={(event) => event.preventDefault()}
+            className="mt-6 flex flex-col gap-3 rounded-2xl border border-tan/60 bg-white p-3 shadow-card md:flex-row md:items-center"
+          >
             <div className="flex flex-1 items-center gap-2 rounded-xl bg-cream/70 px-3">
               <Search className="h-4 w-4 text-coffee" />
               <input
                 aria-label="Search PATAG"
                 className="w-full bg-transparent py-3 text-sm text-onyx outline-none placeholder:text-coffee/60"
                 placeholder="Type a politician, pending bill, agency, or trending issue"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
               />
             </div>
             <button
-              type="button"
+              type="submit"
               className="rounded-xl bg-rust px-5 py-3 text-sm font-semibold text-cream hover:bg-cocoa"
             >
               Search PATAG
@@ -346,7 +352,7 @@ function ActionCard({
   title,
   description,
 }: {
-  to: "/services" | "/about" | "/login";
+  to: string;
   title: string;
   description: string;
 }) {
