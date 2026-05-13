@@ -1,0 +1,155 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@import url("https://fonts.googleapis.com/css2?family=Ancizar+Serif:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@300;400;500;600;700&display=swap");
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Ancizar Serif", serif;
+  --font-serif: "Fraunces", serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-cream: var(--cream);
+  --color-tan: var(--tan);
+  --color-coffee: var(--coffee);
+  --color-mocha: var(--mocha);
+  --color-cocoa: var(--cocoa);
+  --color-espresso: var(--espresso);
+  --color-onyx: var(--onyx);
+  --color-copper: var(--copper);
+  --color-rust: var(--rust);
+  --color-forest: var(--forest);
+}
+
+:root {
+  --radius: 0.875rem;
+
+  /* Brand palette (light/cream surface) */
+  --cream: oklch(0.93 0.005 30);            /* #E4E0E1 */
+  --tan: oklch(0.81 0.035 60);              /* #D6C0B3 */
+  --mocha: oklch(0.62 0.04 55);             /* #AB886D */
+  --coffee: oklch(0.43 0.04 55);            /* #5E4634 */
+  --cocoa: oklch(0.36 0.04 50);             /* #493628 */
+  --espresso: oklch(0.22 0.025 45);         /* #201406 */
+  --onyx: oklch(0.18 0.02 45);              /* #1B140E */
+  --copper: oklch(0.58 0.16 40);            /* #C05A32 */
+  --rust: oklch(0.45 0.13 45);              /* #7D3705 */
+  --forest: oklch(0.45 0.06 150);           /* #41644A */
+
+  --background: var(--cream);
+  --foreground: var(--onyx);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--onyx);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--onyx);
+  --primary: var(--forest);
+  --primary-foreground: oklch(0.98 0.005 80);
+  --secondary: var(--tan);
+  --secondary-foreground: var(--cocoa);
+  --muted: oklch(0.95 0.008 60);
+  --muted-foreground: var(--coffee);
+  --accent: var(--copper);
+  --accent-foreground: oklch(0.98 0.005 80);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.85 0.02 60);
+  --input: oklch(0.88 0.015 60);
+  --ring: var(--forest);
+
+  --gradient-brand: linear-gradient(120deg, var(--forest) 0%, var(--coffee) 45%, var(--mocha) 100%);
+  --gradient-hero: linear-gradient(135deg, var(--forest) 0%, var(--cocoa) 50%, var(--copper) 100%);
+  --gradient-dark: linear-gradient(160deg, var(--onyx) 0%, var(--cocoa) 60%, var(--rust) 100%);
+  --shadow-soft: 0 10px 30px -12px color-mix(in oklab, var(--cocoa) 35%, transparent);
+  --shadow-card: 0 1px 0 0 color-mix(in oklab, var(--cocoa) 8%, transparent), 0 12px 32px -16px color-mix(in oklab, var(--cocoa) 22%, transparent);
+}
+
+.dark {
+  --background: var(--onyx);
+  --foreground: var(--cream);
+  --card: oklch(0.22 0.025 45);
+  --card-foreground: var(--cream);
+  --popover: oklch(0.22 0.025 45);
+  --popover-foreground: var(--cream);
+  --primary: var(--cream);
+  --primary-foreground: var(--onyx);
+  --secondary: oklch(0.28 0.025 45);
+  --secondary-foreground: var(--cream);
+  --muted: oklch(0.26 0.02 45);
+  --muted-foreground: oklch(0.75 0.02 60);
+  --accent: var(--copper);
+  --accent-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: var(--copper);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body { height: 100%; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .font-serif-display { font-family: var(--font-serif); }
+  .bg-gradient-brand { background: var(--gradient-brand); }
+  .bg-gradient-hero { background: var(--gradient-hero); }
+  .bg-gradient-dark { background: var(--gradient-dark); }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .text-balance { text-wrap: balance; }
+  .auth-input {
+    width: 100%;
+    background: transparent;
+    color: var(--cream);
+    font-size: 0.875rem;
+    outline: none;
+    padding: 0.25rem 0;
+  }
+  .auth-input::placeholder { color: color-mix(in oklab, var(--cream) 55%, transparent); }
+  .auth-select {
+    width: 100%;
+    background: transparent;
+    border-bottom: 1px solid color-mix(in oklab, white 20%, transparent);
+    color: var(--cream);
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+    outline: none;
+  }
+  .auth-select option { color: #1B140E; }
+}
