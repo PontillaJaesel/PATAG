@@ -2,7 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { Search, MapPin, Filter, ChevronLeft, ChevronRight } from "lucide-react";
-import { officials } from "@/lib/mock-data";
+import { officials, type Official } from "@/lib/mock-data";
 import { getUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/officials/")({
@@ -12,11 +12,125 @@ export const Route = createFileRoute("/officials/")({
 });
 
 function OfficialsList() {
+  const statusOptions: Official["status"][] = ["Active", "Former", "Appointed", "Elected"];
+  const branchOptions: Official["branch"][] = ["Executive", "Legislative", "Judicial"];
+
   const [q, setQ] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [page, setPage] = useState(1);
+  const [location, setLocation] = useState("");
+  const [locQuery, setLocQuery] = useState("");
+  const [locOpen, setLocOpen] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState<Official["status"][]>([]);
+  const [selectedBranches, setSelectedBranches] = useState<Official["branch"][]>([]);
   const PAGE_SIZE = 10;
-  const filtered = officials.filter(o => o.name.toLowerCase().includes(q.toLowerCase()) || o.position.toLowerCase().includes(q.toLowerCase()));
+  const provinces = [
+    "Abra",
+    "Agusan del Norte",
+    "Agusan del Sur",
+    "Aklan",
+    "Albay",
+    "Antique",
+    "Apayao",
+    "Aurora",
+    "Basilan",
+    "Bataan",
+    "Batanes",
+    "Batangas",
+    "Benguet",
+    "Biliran",
+    "Bohol",
+    "Bukidnon",
+    "Bulacan",
+    "Cagayan",
+    "Camarines Norte",
+    "Camarines Sur",
+    "Camiguin",
+    "Capiz",
+    "Catanduanes",
+    "Cavite",
+    "Cebu",
+    "Cotabato",
+    "Davao de Oro",
+    "Davao del Norte",
+    "Davao del Sur",
+    "Davao Occidental",
+    "Davao Oriental",
+    "Dinagat Islands",
+    "Eastern Samar",
+    "Guimaras",
+    "Ifugao",
+    "Ilocos Norte",
+    "Ilocos Sur",
+    "Iloilo",
+    "Isabela",
+    "Kalinga",
+    "La Union",
+    "Laguna",
+    "Lanao del Norte",
+    "Lanao del Sur",
+    "Leyte",
+    "Maguindanao del Norte",
+    "Maguindanao del Sur",
+    "Marinduque",
+    "Masbate",
+    "Misamis Occidental",
+    "Misamis Oriental",
+    "Mountain Province",
+    "Negros Occidental",
+    "Negros Oriental",
+    "Northern Samar",
+    "Nueva Ecija",
+    "Nueva Vizcaya",
+    "Occidental Mindoro",
+    "Oriental Mindoro",
+    "Palawan",
+    "Pampanga",
+    "Pangasinan",
+    "Quezon",
+    "Quirino",
+    "Rizal",
+    "Romblon",
+    "Sarangani",
+    "Siquijor",
+    "Sorsogon",
+    "South Cotabato",
+    "Southern Leyte",
+    "Sultan Kudarat",
+    "Sulu",
+    "Surigao del Norte",
+    "Surigao del Sur",
+    "Tarlac",
+    "Tawi-Tawi",
+    "Zambales",
+    "Zamboanga del Norte",
+    "Zamboanga del Sur",
+    "Zamboanga Sibugay",
+    "National Capital Region"
+  ].sort((a, b) => a.localeCompare(b));
+
+  const filteredProvinces = provinces.filter(p => p.toLowerCase().includes(locQuery.toLowerCase()));
+
+  const toggleStatus = (status: Official["status"]) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
+    );
+    setPage(1);
+  };
+
+  const toggleBranch = (branch: Official["branch"]) => {
+    setSelectedBranches((prev) =>
+      prev.includes(branch) ? prev.filter((b) => b !== branch) : [...prev, branch],
+    );
+    setPage(1);
+  };
+
+  const filtered = officials.filter(o => (
+    (o.name.toLowerCase().includes(q.toLowerCase()) || o.position.toLowerCase().includes(q.toLowerCase())) &&
+    (location === "" || o.location.toLowerCase().includes(location.toLowerCase())) &&
+    (selectedStatuses.length === 0 || selectedStatuses.includes(o.status)) &&
+    (selectedBranches.length === 0 || selectedBranches.includes(o.branch))
+  ));
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageStart = (currentPage - 1) * PAGE_SIZE;
@@ -32,11 +146,37 @@ function OfficialsList() {
           <div className="mx-auto mt-6 flex max-w-3xl flex-col gap-2 sm:flex-row">
             <div className="flex flex-1 items-center gap-2 rounded-xl bg-cream/95 px-3 py-2 shadow-card">
               <Search className="h-4 w-4 text-coffee" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search Government Official or Keyword" className="w-full bg-transparent text-sm text-onyx outline-none placeholder:text-coffee/60" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search Government Official or Keyword" className="w-full bg-transparent text-sm text-cocoa outline-none placeholder:text-cocoa/70" />
             </div>
-            <div className="flex items-center gap-2 rounded-xl bg-cream/95 px-3 py-2 shadow-card sm:w-56">
+            <div className="flex items-center gap-2 rounded-xl bg-cream/95 px-3 py-2 shadow-card sm:w-56 relative">
               <MapPin className="h-4 w-4 text-coffee" />
-              <input placeholder="Location" className="w-full bg-transparent text-sm text-onyx outline-none placeholder:text-coffee/60" />
+              <div className="relative w-full">
+                <input
+                  value={locQuery}
+                  onChange={(e) => { setLocQuery(e.target.value); setLocOpen(true); }}
+                  onFocus={() => setLocOpen(true)}
+                  onBlur={() => setTimeout(() => setLocOpen(false), 150)}
+                  placeholder="Location"
+                  className="w-full bg-transparent text-sm text-cocoa outline-none placeholder:text-cocoa/70"
+                />
+                {locOpen && (
+                  <ul className="absolute left-0 top-full z-50 mt-1 max-h-44 w-full overflow-auto rounded-md border bg-white text-sm text-cocoa shadow-lg">
+                    {filteredProvinces.length === 0 ? (
+                      <li className="px-3 py-2 text-cocoa/80">No matches</li>
+                    ) : (
+                      filteredProvinces.map((p) => (
+                        <li
+                          key={p}
+                          onMouseDown={(e) => { e.preventDefault(); setLocation(p); setLocQuery(p); setLocOpen(false); }}
+                          className="cursor-pointer px-3 py-2 text-onyx hover:bg-muted"
+                        >
+                          {p}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
+              </div>
             </div>
             <button className="rounded-xl bg-forest px-6 py-2 font-semibold text-cream hover:opacity-90">Search</button>
           </div>
@@ -50,7 +190,7 @@ function OfficialsList() {
               {/* Always-visible Tracker card */}
               <div className="rounded-2xl bg-gradient-to-br from-cocoa to-coffee p-5 text-cream shadow-card">
                 <div className="font-display text-lg leading-tight">Stay Informed on Pending and Approved Laws</div>
-                <Link to="/bills/" className="mt-4 inline-block rounded-full bg-forest px-4 py-1.5 text-xs font-semibold text-cream hover:opacity-90">View Tracker</Link>
+                <Link to="/bills" className="mt-4 inline-block rounded-full bg-forest px-4 py-1.5 text-xs font-semibold text-cream hover:opacity-90">View Tracker</Link>
               </div>
 
               {/* Collapsible Filters */}
@@ -60,8 +200,18 @@ function OfficialsList() {
                     <span className="flex items-center gap-2"><Filter className="h-4 w-4" /> Filters</span>
                     <ChevronLeft className="h-4 w-4" />
                   </button>
-                  <FilterGroup title="Status" options={["Active","Former","Appointed","Elected"]} />
-                  <FilterGroup title="Branch" options={["Executive","Legislative","Judicial"]} />
+                  <FilterGroup
+                    title="Status"
+                    options={statusOptions}
+                    selectedOptions={selectedStatuses}
+                    onToggleOption={toggleStatus}
+                  />
+                  <FilterGroup
+                    title="Branch"
+                    options={branchOptions}
+                    selectedOptions={selectedBranches}
+                    onToggleOption={toggleBranch}
+                  />
                 </div>
               ) : (
                 <button
@@ -130,14 +280,30 @@ function OfficialsList() {
   );
 }
 
-function FilterGroup({ title, options }: { title: string; options: string[] }) {
+function FilterGroup<T extends string>({
+  title,
+  options,
+  selectedOptions,
+  onToggleOption,
+}: {
+  title: string;
+  options: T[];
+  selectedOptions: T[];
+  onToggleOption: (option: T) => void;
+}) {
   return (
     <div className="mb-3">
       <div className="text-xs font-semibold uppercase tracking-wide text-mocha">{title}</div>
       <ul className="mt-1 space-y-1">
         {options.map((o) => (
           <li key={o} className="flex items-center gap-2 text-sm text-cocoa">
-            <input type="checkbox" className="h-3.5 w-3.5 accent-forest" /> {o}
+            <input
+              type="checkbox"
+              checked={selectedOptions.includes(o)}
+              onChange={() => onToggleOption(o)}
+              className="h-3.5 w-3.5 accent-forest"
+            />
+            {o}
           </li>
         ))}
       </ul>
