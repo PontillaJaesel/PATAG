@@ -7,11 +7,20 @@ import { getUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/bills/")({
   beforeLoad: () => { if (typeof window !== "undefined" && !getUser()) throw redirect({ to: "/login" }); },
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: typeof search.q === "string" ? search.q : "",
+  }),
   head: () => ({ meta: [{ title: "Legislative Progress Tracker — P.A.T.A.G." }, { name: "description", content: "Every bill. Every stage. Every author." }] }),
   component: BillsList,
 });
 
 function BillsList() {
+  const { q } = Route.useSearch();
+  const query = q.trim().toLowerCase();
+  const visibleBills = query
+    ? bills.filter((b) => [b.number, b.title, b.category, b.description, b.summary, ...b.authors].some((value) => value.toLowerCase().includes(query)))
+    : bills;
+
   return (
     <div className="min-h-screen bg-cream">
       <AppNav />
@@ -25,7 +34,12 @@ function BillsList() {
       </section>
 
       <section className="mx-auto max-w-4xl space-y-4 px-6 py-10">
-        {bills.map((b) => (
+        {query && (
+          <div className="rounded-2xl border border-tan bg-white p-4 text-sm text-cocoa shadow-card">
+            Showing results for <span className="font-semibold text-onyx">{q}</span>
+          </div>
+        )}
+        {visibleBills.map((b) => (
           <Link key={b.id} to="/bills/$billId" params={{ billId: b.id }} className="block rounded-2xl border border-tan bg-white p-5 shadow-card transition hover:-translate-y-0.5">
             <div className="flex items-start justify-between gap-4">
               <div>
