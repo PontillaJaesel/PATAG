@@ -14,6 +14,17 @@ export const Route = createFileRoute("/officials/")({
 function OfficialsList() {
   const statusOptions: Official["status"][] = ["Active", "Former", "Appointed", "Elected"];
   const branchOptions: Official["branch"][] = ["Executive", "Legislative", "Judicial"];
+  const sortOptions = [
+    { value: "relevance", label: "Relevance" },
+    { value: "name-asc", label: "Name: A-Z" },
+    { value: "name-desc", label: "Name: Z-A" },
+    { value: "seniority-longest", label: "Longest Serving" },
+    { value: "seniority-recent", label: "Recently Assumed" },
+    { value: "hierarchy", label: "Hierarchy" },
+    { value: "activity", label: "Most Recent Updates" },
+    { value: "fulfillment", label: "Fulfillment Rate" },
+  ] as const;
+  type SortKey = (typeof sortOptions)[number]["value"];
 
   const [q, setQ] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(true);
@@ -23,6 +34,7 @@ function OfficialsList() {
   const [locOpen, setLocOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<Official["status"][]>([]);
   const [selectedBranches, setSelectedBranches] = useState<Official["branch"][]>([]);
+  const [sortBy, setSortBy] = useState<SortKey>("relevance");
   const PAGE_SIZE = 10;
   const provinces = [
     "Abra",
@@ -111,6 +123,35 @@ function OfficialsList() {
 
   const filteredProvinces = provinces.filter(p => p.toLowerCase().includes(locQuery.toLowerCase()));
 
+  const clearLocationFilter = () => {
+    setLocation("");
+    setLocQuery("All");
+    setLocOpen(false);
+    setPage(1);
+  };
+
+  const parseDateAssumed = (dateAssumed: string) => {
+    const parsed = Date.parse(dateAssumed);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const getHierarchyRank = (official: Official) => {
+    const ranks: Record<string, number> = {
+      President: 0,
+      "Vice President": 1,
+      "Executive Secretary": 2,
+      "Secretary of Finance": 3,
+      "Secretary of Education": 4,
+      "Secretary of the Interior and Local Government": 5,
+      "Secretary of National Defense": 6,
+    };
+
+    return ranks[official.position] ?? 99;
+  };
+
+  const getActivityScore = (official: Official) => official.records.length * 1000 + parseDateAssumed(official.dateAssumed);
+  const getFulfillmentScore = (official: Official) => official.policies.length * 1000 + official.records.length;
+
   const toggleStatus = (status: Official["status"]) => {
     setSelectedStatuses((prev) =>
       prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
@@ -125,12 +166,35 @@ function OfficialsList() {
     setPage(1);
   };
 
-  const filtered = officials.filter(o => (
-    (o.name.toLowerCase().includes(q.toLowerCase()) || o.position.toLowerCase().includes(q.toLowerCase())) &&
-    (location === "" || o.location.toLowerCase().includes(location.toLowerCase())) &&
-    (selectedStatuses.length === 0 || selectedStatuses.includes(o.status)) &&
-    (selectedBranches.length === 0 || selectedBranches.includes(o.branch))
-  ));
+  const filtered = officials
+    .map((official, index) => ({ official, index }))
+    .filter(({ official }) => (
+      (official.name.toLowerCase().includes(q.toLowerCase()) || official.position.toLowerCase().includes(q.toLowerCase())) &&
+      (location === "" || official.location.toLowerCase().includes(location.toLowerCase())) &&
+      (selectedStatuses.length === 0 || selectedStatuses.includes(official.status)) &&
+      (selectedBranches.length === 0 || selectedBranches.includes(official.branch))
+    ))
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "name-asc":
+          return a.official.name.localeCompare(b.official.name);
+        case "name-desc":
+          return b.official.name.localeCompare(a.official.name);
+        case "seniority-longest":
+          return parseDateAssumed(a.official.dateAssumed) - parseDateAssumed(b.official.dateAssumed);
+        case "seniority-recent":
+          return parseDateAssumed(b.official.dateAssumed) - parseDateAssumed(a.official.dateAssumed);
+        case "hierarchy":
+          return getHierarchyRank(a.official) - getHierarchyRank(b.official) || a.index - b.index;
+        case "activity":
+          return getActivityScore(b.official) - getActivityScore(a.official) || a.index - b.index;
+        case "fulfillment":
+          return getFulfillmentScore(b.official) - getFulfillmentScore(a.official) || a.index - b.index;
+        case "relevance":
+        default:
+          return a.index - b.index;
+      }
+    });
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageStart = (currentPage - 1) * PAGE_SIZE;
@@ -161,6 +225,12 @@ function OfficialsList() {
                 />
                 {locOpen && (
                   <ul className="absolute left-0 top-full z-50 mt-1 max-h-44 w-full overflow-auto rounded-md border bg-white text-sm text-cocoa shadow-lg">
+                    <li
+                      onMouseDown={(e) => { e.preventDefault(); clearLocationFilter(); }}
+                      className="cursor-pointer px-3 py-2 text-onyx hover:bg-muted"
+                    >
+                      All
+                    </li>
                     {filteredProvinces.length === 0 ? (
                       <li className="px-3 py-2 text-cocoa/80">No matches</li>
                     ) : (
@@ -190,7 +260,7 @@ function OfficialsList() {
               {/* Always-visible Tracker card */}
               <div className="rounded-2xl bg-gradient-to-br from-cocoa to-coffee p-5 text-cream shadow-card">
                 <div className="font-display text-lg leading-tight">Stay Informed on Pending and Approved Laws</div>
-                <Link to="/bills" className="mt-4 inline-block rounded-full bg-forest px-4 py-1.5 text-xs font-semibold text-cream hover:opacity-90">View Tracker</Link>
+                <Link to="/bills" search={{ q: "" }} className="mt-4 inline-block rounded-full bg-forest px-4 py-1.5 text-xs font-semibold text-cream hover:opacity-90">View Tracker</Link>
               </div>
 
               {/* Collapsible Filters */}
@@ -230,10 +300,23 @@ function OfficialsList() {
           <div className="min-w-0">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-display text-xl text-cocoa sm:text-2xl">Government Officials</h2>
-              <div className="text-xs text-coffee">Sort by: <span className="font-semibold">Relevance</span></div>
+              <label className="flex items-center gap-2 text-xs text-coffee">
+                <span>Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => { setSortBy(e.target.value as SortKey); setPage(1); }}
+                  className="rounded-md border border-tan bg-white px-2 py-1 text-xs font-semibold text-cocoa shadow-card outline-none"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {pageItems.map((o) => (
+              {pageItems.map(({ official: o }) => (
                 <Link key={o.id} to="/officials/$officialId" params={{ officialId: o.id }} className="group rounded-2xl border border-tan bg-white p-4 shadow-card transition hover:-translate-y-0.5">
                   <div className="flex items-center gap-3">
                     <img src={o.photo} alt={o.name} loading="lazy" width={56} height={56} className="h-14 w-14 rounded-full object-cover" />
