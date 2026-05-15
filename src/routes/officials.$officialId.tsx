@@ -56,7 +56,13 @@ function OfficialProfile() {
               <ul className="mt-2 space-y-1.5 text-sm">
                 {o.policies.map((p) => (
                   <li key={p}>
-                    <a className="text-rust underline-offset-2 hover:underline">{p}</a>
+                    <Link
+                      to="/bills/"
+                      search={{ q: p }}
+                      className="text-rust underline-offset-2 hover:underline"
+                    >
+                      {p}
+                    </Link>
                   </li>
                 ))}
               </ul>
