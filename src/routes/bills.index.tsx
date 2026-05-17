@@ -1,27 +1,67 @@
+import { useBillActions } from "@/lib/useBillActions";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { ThumbsUp, ThumbsDown, Bookmark, ChevronDown, Check } from "lucide-react";
 import heroImg from "@/assets/legislative-hero.png";
-import { bills, stages } from "@/lib/mock-data";
+import { stages } from "@/lib/mock-data"; 
 import { getUser } from "@/lib/auth";
+import { db } from "@/db"; 
+
+const getBillsList = createServerFn({ method: "GET" }).handler(async () => {
+  const result = await db.execute("SELECT * FROM bills ORDER BY id DESC");
+  
+  return result.rows.map((r: any) => ({
+    id: String(r.id),
+    title: r.title,
+    description: r.brief_description || r.summary || "No description provided.", 
+    filed: r.date_filed,             
+    number: r.bill_no || `HB-${r.id.toString().padStart(4, '0')}`,               
+    category: r.category || "Uncategorized", 
+    stage: r.stage || 1, 
+    authors: String(r.authors || "Unknown").split(',').map((a: string) => a.trim()), 
+  }));
+});
 
 export const Route = createFileRoute("/bills/")({
   beforeLoad: () => { if (typeof window !== "undefined" && !getUser()) throw redirect({ to: "/login" }); },
+  loader: async () => {
+    const bills = await getBillsList();
+    return { bills };
+  },
   head: () => ({ meta: [{ title: "Legislative Progress Tracker — P.A.T.A.G." }, { name: "description", content: "Every bill. Every stage. Every author." }] }),
   component: BillsList,
 });
 
 function BillsList() {
+  const { bills } = Route.useLoaderData();
+
   const [sortCat, setSortCat] = useState("");
   const [sortStatus, setSortStatus] = useState("");
 
-  const sorted = useMemo(() => {
-    const arr = [...bills];
-    if (sortCat && sortCat !== "All") arr.sort((a, b) => a.category.localeCompare(b.category));
-    if (sortStatus && sortStatus !== "All") arr.sort((a, b) => a.stage - b.stage);
-    return arr;
-  }, [sortCat, sortStatus]);
+// Replace the old 'sorted' useMemo with this 'filtered' one
+  const filtered = useMemo(() => {
+    return bills.filter((b: any) => {
+      let matchCat = true;
+      let matchStatus = true;
+
+      // 1. Filter by Category (using .includes so hybrid categories work)
+      if (sortCat && sortCat !== "All") {
+        matchCat = b.category.includes(sortCat);
+      }
+
+      // 2. Filter by Status (mapping the dropdown string to your DB's stage number)
+      if (sortStatus && sortStatus !== "All") {
+        const statusMap: Record<string, number> = {
+          "Filed": 1, "House": 2, "Senate": 3, "President": 4, "Enacted": 5
+        };
+        matchStatus = b.stage === statusMap[sortStatus];
+      }
+
+      return matchCat && matchStatus;
+    });
+  }, [bills, sortCat, sortStatus]);
 
   return (
     <div className="min-h-screen bg-cream">
@@ -47,7 +87,7 @@ function BillsList() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          {sorted.map((b) => (
+          {filtered.map((b) => (
             <Link
               key={b.id}
               to="/bills/$billId"
@@ -73,12 +113,12 @@ function BillsList() {
                 <div className="text-xs">
                   <div className="uppercase tracking-[0.2em] text-mocha">Authored by</div>
                   <div className="mt-1 flex flex-wrap gap-1.5">
-                    {b.authors.map((a) => (
+                    {b.authors.map((a: string) => (
                       <span key={a} className="rounded-full bg-tan/50 px-3 py-1 text-cocoa">{a}</span>
                     ))}
                   </div>
                 </div>
-                <BillActionButtons />
+                <BillActionButtons billId={b.id} />
               </div>
             </Link>
           ))}
@@ -88,20 +128,20 @@ function BillsList() {
   );
 }
 
-function BillActionButtons() {
-  const [vote, setVote] = useState<'up' | 'down' | null>(null);
-  const [bookmarked, setBookmarked] = useState(false);
+function BillActionButtons({ billId }: { billId: string }) {
+  // Use our new shared hook!
+  const { vote, setVote, bookmarked, setBookmarked } = useBillActions(billId);
 
   const toggleVote = (e: React.MouseEvent, type: 'up' | 'down') => {
     e.preventDefault();
     e.stopPropagation();
-    setVote(prev => prev === type ? null : type);
+    setVote(vote === type ? null : type);
   };
 
   const toggleBookmark = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setBookmarked(prev => !prev);
+    setBookmarked(!bookmarked);
   };
 
   const baseClass = "grid h-10 w-10 place-items-center rounded-full border transition-all duration-200 hover:scale-105";
@@ -111,6 +151,7 @@ function BillActionButtons() {
     <div className="flex items-center gap-2">
       <button
         onClick={(e) => toggleVote(e, 'up')}
+        // Orange (copper) for upvote
         className={`${baseClass} ${vote === 'up' ? 'bg-copper border-transparent text-cream' : defaultClass}`}
       >
         <ThumbsUp className="h-4 w-4" />
@@ -118,6 +159,7 @@ function BillActionButtons() {
       
       <button
         onClick={(e) => toggleVote(e, 'down')}
+        // Orange (copper) for downvote
         className={`${baseClass} ${vote === 'down' ? 'bg-copper border-transparent text-cream' : defaultClass}`}
       >
         <ThumbsDown className="h-4 w-4" />
@@ -125,6 +167,7 @@ function BillActionButtons() {
       
       <button
         onClick={toggleBookmark}
+        // Green (forest) for bookmark
         className={`${baseClass} ${bookmarked ? 'bg-forest border-transparent text-cream' : defaultClass}`}
       >
         <Bookmark className="h-4 w-4" />
@@ -174,7 +217,6 @@ function SortSelect({
         onChange={(e) => onChange(e.target.value)}
         className="appearance-none rounded-full border border-tan bg-white/70 py-1.5 pl-4 pr-8 text-xs text-cocoa shadow-sm focus:outline-none focus:ring-2 focus:ring-copper/40"
       >
-        {/* Added disabled and hidden here */}
         <option value="" disabled hidden>{placeholder}</option>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
