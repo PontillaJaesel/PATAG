@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PublicNav } from "@/components/PublicNav";
-import { Footer } from "@/components/Footer";
 import shield from "@/assets/patag-shield.png";
 import { ArrowRight, Building2, Clock3, Gavel, Scale, Search, Shield, Users } from "lucide-react";
 
@@ -52,22 +51,19 @@ const TOP_HEADLINES = [
     title: "NBI files raps vs vloggers outside PH for disinformation",
     source: "Inquirer.net",
     url: "https://newsinfo.inquirer.net/2055033/nbi-files-raps-vs-vloggers-outside-ph-for-disinformation",
-    thumbnail:
-      "https://newsinfo.inquirer.net/files/2025/04/Jaime-Santiago-23April2025.jpg",
+    thumbnail: "https://newsinfo.inquirer.net/files/2025/04/Jaime-Santiago-23April2025.jpg",
   },
   {
     title: "Extreme weather: Study says PH 10th hardest hit",
     source: "Inquirer.net",
     url: "https://newsinfo.inquirer.net/2034106/extreme-weather-study-says-ph-10th-hardest-hit",
-    thumbnail:
-      "https://newsinfo.inquirer.net/files/2025/02/News947535.jpg",
+    thumbnail: "https://newsinfo.inquirer.net/files/2025/02/News947535.jpg",
   },
   {
     title: "Legarda pushes for united effort to protect oceans, PH livelihood",
     source: "Inquirer.net",
     url: "https://newsinfo.inquirer.net/2095391/legarda-pushes-for-united-effort-to-protect-oceans-ph-livelihood",
-    thumbnail:
-      "https://newsinfo.inquirer.net/files/2025/08/legarda-dfa.jpeg",
+    thumbnail: "https://newsinfo.inquirer.net/files/2025/08/legarda-dfa.jpeg",
   },
   {
     title: "Habagat, cyclone death toll rises to 37 — NDRRMC",
@@ -125,6 +121,12 @@ function Landing() {
 
       <section className="relative overflow-hidden bg-gradient-hero text-cream">
         <div className="absolute inset-0 opacity-35 [background:radial-gradient(circle_at_10%_20%,white,transparent_45%),radial-gradient(circle_at_85%_25%,#d6a76a,transparent_35%)]" />
+        <div className="absolute inset-x-0 top-0 border-b border-white/15 bg-black/15 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-cream/85">
+            <span>Anonymous civic intelligence stream</span>
+            <span>Philippines-focused updates</span>
+          </div>
+        </div>
         <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-6 py-20 text-center md:flex-row md:items-center md:py-24 md:text-left">
           <div className="group relative">
             <span className="absolute -inset-4 -z-10 rounded-full bg-cream/20 blur-2xl transition duration-500 group-hover:scale-110" />
@@ -163,18 +165,9 @@ function Landing() {
               >
                 Get started <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link
-                to="/services"
-                className="inline-flex items-center gap-2 rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold text-cream transition duration-300 hover:-translate-y-0.5 hover:bg-white/10"
-              >
-                Explore platform tools
-              </Link>
-              <Link
-                to="/about"
-                className="inline-flex items-center gap-2 rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold text-cream transition duration-300 hover:-translate-y-0.5 hover:bg-white/10"
-              >
-                About P.A.T.A.G.
-              </Link>
+              <span className="inline-flex items-center gap-2 rounded-full border border-cream/40 px-5 py-2.5 text-sm font-semibold text-cream/90">
+                Scroll for services and platform background
+              </span>
             </div>
           </div>
         </div>
@@ -220,7 +213,12 @@ function Landing() {
 
       <section className="px-0 py-10">
         <div className="mx-auto mb-4 flex max-w-7xl items-center justify-between gap-3 px-6">
-          <h2 className="font-display text-3xl text-rust md:text-4xl">Verified national pulse</h2>
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-mocha">
+              What is happening in the Philippines now?
+            </p>
+            <h2 className="font-display text-3xl text-rust md:text-4xl">Verified national pulse</h2>
+          </div>
           <span className="text-xs font-semibold uppercase tracking-[0.18em] text-mocha">
             Rotates every 5s
           </span>
@@ -302,23 +300,24 @@ function Landing() {
 
       <section className="mx-auto max-w-7xl px-6 pb-14">
         <h2 className="mt-2 font-display text-3xl text-rust md:text-4xl">
-          Take action in minutes.
+          Services available on this page.
         </h2>
+        <p className="mt-3 max-w-3xl text-sm text-mocha">
+          Core platform services are listed here directly so you can explore without leaving the
+          landing page.
+        </p>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <ActionCard
-            to="/services"
             icon={<Users className="h-5 w-5" />}
             title="Find Your Representative"
             description="Locate and verify public officials connected to your area."
           />
           <ActionCard
-            to="/services"
             icon={<Shield className="h-5 w-5" />}
             title="Take a National Survey"
             description="Share your policy priorities and compare national sentiment."
           />
           <ActionCard
-            to="/services"
             icon={<Building2 className="h-5 w-5" />}
             title="Track My District’s Budget"
             description="Follow allocations, releases, and implementation status by district."
@@ -328,47 +327,47 @@ function Landing() {
 
       <section className="border-y border-tan/60 bg-white/70">
         <div className="mx-auto max-w-7xl px-6 py-10">
-          <h2 className="mt-2 font-display text-3xl text-rust md:text-4xl">
-            PATAG transparency and access policy.
-          </h2>
-          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-cocoa">
-            <Link to="/about" className="font-semibold hover:text-rust">
-              About Us
-            </Link>
-            <Link to="/about" className="font-semibold hover:text-rust">
-              Data Methodology
-            </Link>
-            <a href="mailto:relay@patag.ph" className="font-semibold hover:text-rust">
-              Contact Relay: relay@patag.ph
-            </a>
-            <span className="text-mocha">
-              Public submissions are routed through anonymized intake channels.
-            </span>
+          <h2 className="mt-2 font-display text-3xl text-rust md:text-4xl">About P.A.T.A.G.</h2>
+          <div className="mt-4 grid gap-3 text-sm text-cocoa md:grid-cols-3">
+            <article className="rounded-xl border border-tan/50 bg-white px-4 py-3 shadow-card">
+              <h3 className="font-semibold text-rust">Mission</h3>
+              <p className="mt-1 text-mocha">
+                Build a public-interest platform that tracks policy, budgets, and governance
+                signals.
+              </p>
+            </article>
+            <article className="rounded-xl border border-tan/50 bg-white px-4 py-3 shadow-card">
+              <h3 className="font-semibold text-rust">Method</h3>
+              <p className="mt-1 text-mocha">
+                Summaries are structured from public records and verified news streams for quick
+                civic context.
+              </p>
+            </article>
+            <article className="rounded-xl border border-tan/50 bg-white px-4 py-3 shadow-card">
+              <h3 className="font-semibold text-rust">Identity</h3>
+              <p className="mt-1 text-mocha">
+                This public surface stays intentionally neutral and anonymous to prioritize the
+                information itself.
+              </p>
+            </article>
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }
 
 function ActionCard({
-  to,
   icon,
   title,
   description,
 }: {
-  to: string;
   icon: ReactNode;
   title: string;
   description: string;
 }) {
   return (
-    <Link
-      to={to}
-      className="rounded-2xl border border-tan/70 bg-white p-5 shadow-card transition duration-300 hover:-translate-y-1 hover:border-cocoa/50 hover:shadow-2xl"
-    >
+    <article className="rounded-2xl border border-tan/70 bg-white p-5 shadow-card transition duration-300 hover:-translate-y-1 hover:border-cocoa/50 hover:shadow-2xl">
       <span className="inline-flex items-center gap-2 rounded-full bg-cream px-3 py-1 text-xs font-semibold text-rust">
         {icon}
         Action
@@ -376,9 +375,9 @@ function ActionCard({
       <h3 className="mt-3 font-display text-xl text-cocoa">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-mocha">{description}</p>
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-rust">
-        Open
+        Available on this page
         <ArrowRight className="h-4 w-4" />
       </span>
-    </Link>
+    </article>
   );
 }
