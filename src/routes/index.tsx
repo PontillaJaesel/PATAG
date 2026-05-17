@@ -42,13 +42,6 @@ const FRONT_PAGE_HIGHLIGHTS = [
 
 const TOP_HEADLINES = [
   {
-    title: "Marcos says Philippines open to tariff deal with US after talks with Trump",
-    source: "Reuters",
-    url: "https://www.reuters.com/world/asia-pacific/marcos-says-philippines-open-tariff-deal-with-us-after-talks-with-trump-2025-07-22/",
-    thumbnail:
-      "https://www.reuters.com/resizer/v2/BJUVT5HEMNOQ5MU22CW4EQJFRM.jpg?auth=69cf8ee4f7dfcff822fcec67d66807072dfc50a27f15bd1a1f61d43d0ebf9583&width=1200&quality=80",
-  },
-  {
     title: "Philippines says no need to involve others in South China Sea conflict",
     source: "BBC News",
     url: "https://www.bbc.com/news/articles/c86vnnm8q8vo",
@@ -56,25 +49,18 @@ const TOP_HEADLINES = [
       "https://ichef.bbci.co.uk/news/1024/branded_news/f54b/live/0269c5f0-f574-11ee-a517-25596991d10a.jpg",
   },
   {
-    title: "Philippines inflation slows, giving central bank room to ease rates",
-    source: "Reuters",
-    url: "https://www.reuters.com/world/asia-pacific/philippines-inflation-slows-giving-central-bank-room-ease-rates-2025-03-05/",
-    thumbnail:
-      "https://www.reuters.com/resizer/v2/PUJ6JQ6EMFMX3LKPMWEEV5VTHA.jpg?auth=be4c95507ba7e9e69964f9a4e3f066889b7f81ed7f3afbf0464f617fb68d57f2&width=1200&quality=80",
-  },
-  {
     title: "Philippine Senate to launch inquiry into Chinese espionage allegations",
     source: "Al Jazeera",
     url: "https://www.aljazeera.com/news/2025/2/18/philippine-senate-to-launch-inquiry-into-chinese-espionage-allegations",
     thumbnail:
-      "https://www.aljazeera.com/wp-content/uploads/2025/02/AP25049197557735-1739866238.jpg?resize=1200%2C675",
+      "https://www.aljazeera.com/wp-content/uploads/2025/02/AP25049197557735-1739866238.jpg",
   },
   {
     title: "Philippine defense budget to rise as tensions in sea disputes escalate",
     source: "Associated Press",
     url: "https://apnews.com/article/philippines-defense-budget-south-china-sea-f95f35da8ad9f2f7b73478dfad682c90",
     thumbnail:
-      "https://dims.apnews.com/dims4/default/4e86552/2147483647/strip/true/crop/6184x4124+0+0/resize/1200x800!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F47%2Fcd%2Fcefe9923e5e048c05e130ae4dfca%2Fad97f3adbfaf4f6f99f0de09f17b6c24",
+      "https://assets.apnews.com/47/cd/cefe9923e5e048c05e130ae4dfca/ad97f3adbfaf4f6f99f0de09f17b6c24",
   },
 ] as const;
 
