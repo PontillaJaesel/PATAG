@@ -1,12 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Eye, EyeOff } from "lucide-react";
 import shield from "@/assets/patag-shield.png";
 import bg from "@/assets/justice-bg.jpg";
 import { setUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Login — P.A.T.A.G." }, { name: "description", content: "Sign in to your PATAG account." }] }),
+  head: () => ({
+    meta: [
+      { title: "Login — P.A.T.A.G." },
+      { name: "description", content: "Sign in to your PATAG account." }
+    ]
+  }),
   component: LoginPage,
 });
 
@@ -16,13 +21,16 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
 
+  // State for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <AuthShell>
       <Card>
         <h1 className="text-center font-display text-3xl text-cream">Login</h1>
         <form
           className="mt-6 space-y-5"
-          onSubmit={(e) => {
+          onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
             if (!email || !password) return;
             setUser({ email, fullName: email.split("@")[0], role: "citizen" });
@@ -30,19 +38,53 @@ function LoginPage() {
           }}
         >
           <Field icon={<Mail className="h-4 w-4" />}>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required placeholder="Email" className="auth-input" />
+            <input
+              value={email}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              type="email"
+              required
+              placeholder="Email"
+              className="auth-input"
+            />
           </Field>
-          <Field icon={<Lock className="h-4 w-4" />}>
-            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required placeholder="Password" className="auth-input" />
+
+          <Field
+            icon={
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="hover:text-cream transition-colors focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </button>
+            }
+          >
+            <input
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              type={showPassword ? "text" : "password"}
+              required
+              placeholder="Password"
+              className="auth-input"
+            />
           </Field>
+
           <div className="flex items-center justify-between text-xs text-cream/80">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-3.5 w-3.5 accent-copper" />
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRemember(e.target.checked)}
+                className="h-3.5 w-3.5 accent-copper"
+              />
               Remember me
             </label>
             <a href="#" className="text-copper hover:underline">Forget password?</a>
           </div>
-          <button className="w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Login</button>
+          <button className="w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">
+            Login
+          </button>
           <p className="text-center text-xs text-cream/80">
             Don't have an account?{" "}
             <Link to="/signup" className="text-copper font-semibold hover:underline">Register</Link>
