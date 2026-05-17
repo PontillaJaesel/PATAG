@@ -42,25 +42,39 @@ const FRONT_PAGE_HIGHLIGHTS = [
 
 const TOP_HEADLINES = [
   {
-    title: "Philippines says no need to involve others in South China Sea conflict",
-    source: "BBC News",
-    url: "https://www.bbc.com/news/articles/c86vnnm8q8vo",
+    title: "132 areas remain flooded due to Typhoon Uwan — NDRRMC",
+    source: "Inquirer.net",
+    url: "https://newsinfo.inquirer.net/2137306/fwd-132-areas-remain-flooded-due-to-typhoon-uwan-ndrrmc",
     thumbnail:
-      "https://ichef.bbci.co.uk/news/1024/branded_news/f54b/live/0269c5f0-f574-11ee-a517-25596991d10a.jpg",
+      "https://newsinfo.inquirer.net/files/2025/11/AFP__20251109__83HP2T3__v3__MidRes__PhilippinesWeatherTyphoon.jpg",
   },
   {
-    title: "Philippine Senate to launch inquiry into Chinese espionage allegations",
-    source: "Al Jazeera",
-    url: "https://www.aljazeera.com/news/2025/2/18/philippine-senate-to-launch-inquiry-into-chinese-espionage-allegations",
+    title: "NBI files raps vs vloggers outside PH for disinformation",
+    source: "Inquirer.net",
+    url: "https://newsinfo.inquirer.net/2055033/nbi-files-raps-vs-vloggers-outside-ph-for-disinformation",
     thumbnail:
-      "https://www.aljazeera.com/wp-content/uploads/2025/02/AP25049197557735-1739866238.jpg",
+      "https://newsinfo.inquirer.net/files/2025/04/Jaime-Santiago-23April2025.jpg",
   },
   {
-    title: "Philippine defense budget to rise as tensions in sea disputes escalate",
-    source: "Associated Press",
-    url: "https://apnews.com/article/philippines-defense-budget-south-china-sea-f95f35da8ad9f2f7b73478dfad682c90",
+    title: "Extreme weather: Study says PH 10th hardest hit",
+    source: "Inquirer.net",
+    url: "https://newsinfo.inquirer.net/2034106/extreme-weather-study-says-ph-10th-hardest-hit",
     thumbnail:
-      "https://assets.apnews.com/47/cd/cefe9923e5e048c05e130ae4dfca/ad97f3adbfaf4f6f99f0de09f17b6c24",
+      "https://newsinfo.inquirer.net/files/2025/02/News947535.jpg",
+  },
+  {
+    title: "Legarda pushes for united effort to protect oceans, PH livelihood",
+    source: "Inquirer.net",
+    url: "https://newsinfo.inquirer.net/2095391/legarda-pushes-for-united-effort-to-protect-oceans-ph-livelihood",
+    thumbnail:
+      "https://newsinfo.inquirer.net/files/2025/08/legarda-dfa.jpeg",
+  },
+  {
+    title: "Habagat, cyclone death toll rises to 37 — NDRRMC",
+    source: "Inquirer.net",
+    url: "https://newsinfo.inquirer.net/2089799/habagat-cyclone-death-toll-rises-to-37-ndrrmc",
+    thumbnail:
+      "https://newsinfo.inquirer.net/files/2025/07/Typhoon-damaged-rockshed-in-Baguio-Kennon-Road.jpg",
   },
 ] as const;
 
