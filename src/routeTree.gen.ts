@@ -20,6 +20,7 @@ import { Route as OfficialsIndexRouteImport } from './routes/officials.index'
 import { Route as BillsIndexRouteImport } from './routes/bills.index'
 import { Route as OfficialsOfficialIdRouteImport } from './routes/officials.$officialId'
 import { Route as BillsBillIdRouteImport } from './routes/bills.$billId'
+import { Route as AgenciesAgencyIdRouteImport } from './routes/agencies.$agencyId'
 
 const TruthHubRoute = TruthHubRouteImport.update({
   id: '/truth-hub',
@@ -76,6 +77,11 @@ const BillsBillIdRoute = BillsBillIdRouteImport.update({
   path: '/bills/$billId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgenciesAgencyIdRoute = AgenciesAgencyIdRouteImport.update({
+  id: '/agencies/$agencyId',
+  path: '/agencies/$agencyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
+  '/agencies/$agencyId': typeof AgenciesAgencyIdRoute
   '/bills/$billId': typeof BillsBillIdRoute
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills/': typeof BillsIndexRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
+  '/agencies/$agencyId': typeof AgenciesAgencyIdRoute
   '/bills/$billId': typeof BillsBillIdRoute
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills': typeof BillsIndexRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
+  '/agencies/$agencyId': typeof AgenciesAgencyIdRoute
   '/bills/$billId': typeof BillsBillIdRoute
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills/': typeof BillsIndexRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/signup'
     | '/truth-hub'
+    | '/agencies/$agencyId'
     | '/bills/$billId'
     | '/officials/$officialId'
     | '/bills/'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/signup'
     | '/truth-hub'
+    | '/agencies/$agencyId'
     | '/bills/$billId'
     | '/officials/$officialId'
     | '/bills'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/signup'
     | '/truth-hub'
+    | '/agencies/$agencyId'
     | '/bills/$billId'
     | '/officials/$officialId'
     | '/bills/'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   SignupRoute: typeof SignupRoute
   TruthHubRoute: typeof TruthHubRoute
+  AgenciesAgencyIdRoute: typeof AgenciesAgencyIdRoute
   BillsBillIdRoute: typeof BillsBillIdRoute
   OfficialsOfficialIdRoute: typeof OfficialsOfficialIdRoute
   BillsIndexRoute: typeof BillsIndexRoute
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillsBillIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agencies/$agencyId': {
+      id: '/agencies/$agencyId'
+      path: '/agencies/$agencyId'
+      fullPath: '/agencies/$agencyId'
+      preLoaderRoute: typeof AgenciesAgencyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   SignupRoute: SignupRoute,
   TruthHubRoute: TruthHubRoute,
+  AgenciesAgencyIdRoute: AgenciesAgencyIdRoute,
   BillsBillIdRoute: BillsBillIdRoute,
   OfficialsOfficialIdRoute: OfficialsOfficialIdRoute,
   BillsIndexRoute: BillsIndexRoute,

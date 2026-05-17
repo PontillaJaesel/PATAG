@@ -1,9 +1,11 @@
 import { createFileRoute, Link, redirect, notFound } from "@tanstack/react-router";
 import { AppNav } from "@/components/AppNav";
-import { ArrowLeft, Building2, Calendar, ShieldCheck, FileText, Landmark, MapPin } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, ShieldCheck, FileText, Landmark, MapPin, ExternalLink } from "lucide-react";
 import { officials } from "@/lib/mock-data";
 import { getUser } from "@/lib/auth";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const Route = createFileRoute("/officials/$officialId")({
   beforeLoad: () => { if (typeof window !== "undefined" && !getUser()) throw redirect({ to: "/login" }); },
@@ -28,7 +30,7 @@ function OfficialProfile() {
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
-        <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(260px,360px)_1fr]">
+        <div className="mt-4 grid gap-5 md:gap-6 lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)] xl:grid-cols-[minmax(240px,320px)_minmax(0,1fr)_minmax(280px,340px)]">
           {/* LEFT COLUMN */}
           <div className="space-y-5">
             <div className="overflow-hidden rounded-3xl bg-white p-3 shadow-card">
@@ -51,8 +53,38 @@ function OfficialProfile() {
               <p className="text-sm leading-relaxed text-cocoa/85">{o.bio}</p>
             </div>
 
-            <div className="rounded-3xl bg-white p-5 shadow-card">
-              <div className="font-display text-lg text-cocoa">Policies and Laws</div>
+            <div className="rounded-3xl bg-white p-5 shadow-card sm:p-6">
+              <div className="font-display text-lg font-bold text-rust">Bio Data</div>
+              <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="text-[11px] font-bold uppercase tracking-wide text-rust/90">Date of Birth</dt>
+                  <dd className="text-cocoa/90">{o.bioData.dateOfBirth}</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] font-bold uppercase tracking-wide text-rust/90">Age</dt>
+                  <dd className="text-cocoa/90">{o.bioData.age}</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] font-bold uppercase tracking-wide text-rust/90">Civil Status</dt>
+                  <dd className="text-cocoa/90">{o.bioData.civilStatus}</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] font-bold uppercase tracking-wide text-rust/90">Nationality</dt>
+                  <dd className="text-cocoa/90">{o.bioData.nationality}</dd>
+                </div>
+                <div className="sm:col-span-2">
+                  <dt className="text-[11px] font-bold uppercase tracking-wide text-rust/90">Highest Educational Attainment</dt>
+                  <dd className="text-cocoa/90">{o.bioData.education}</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] font-bold uppercase tracking-wide text-rust/90">Religion</dt>
+                  <dd className="text-cocoa/90">{o.bioData.religion}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="rounded-3xl bg-white p-5 shadow-card sm:p-6">
+              <div className="font-display text-lg font-bold text-rust">Policies and Laws</div>
               <ul className="mt-2 space-y-1.5 text-sm">
                 {o.policies.map((p) => (
                   <li key={p}>
@@ -68,7 +100,7 @@ function OfficialProfile() {
             {/* Header card */}
             <div className="rounded-3xl bg-white p-6 shadow-card sm:p-8">
               <h1 className="font-display text-3xl font-bold text-onyx sm:text-5xl">{o.name}</h1>
-              <p className="mt-2 text-base font-medium text-cocoa sm:text-lg">{o.position}</p>
+              <p className="mt-2 text-base font-medium text-cocoa/90 sm:text-lg">{o.position}</p>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <InfoTile icon={<Building2 className="h-4 w-4" />} label="DEPARTMENT" value={o.branch} />
@@ -82,10 +114,10 @@ function OfficialProfile() {
 
             {/* Career History */}
             <div className="rounded-3xl bg-white p-6 shadow-card sm:p-8">
-              <h2 className="font-display text-2xl font-bold text-onyx">Career History</h2>
+              <h2 className="font-display text-2xl font-bold text-rust">Career History</h2>
               <ul className="mt-4 space-y-3">
                 {o.career.map((c) => (
-                  <li key={c.period} className="flex gap-3 text-sm text-cocoa">
+                  <li key={c.period} className="flex gap-3 text-sm text-cocoa/90">
                     <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-forest" />
                     <span><b>{c.period}:</b> {c.role}</span>
                   </li>
@@ -120,9 +152,56 @@ function OfficialProfile() {
               </AccordionShell>
             </Accordion>
           </div>
+
+          {/* PROMISE TRACKER COLUMN */}
+          <div className="lg:col-span-2 xl:col-span-1">
+            <div className="flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-card">
+              <div className="border-b border-muted px-5 py-4">
+                <h2 className="font-display text-xl font-bold text-rust">Campaign Promise Tracker</h2>
+                <p className="mt-1 text-xs text-cocoa/80">Pre-election commitments and current delivery status.</p>
+              </div>
+
+              <ScrollArea className="h-[360px] sm:h-[420px] xl:h-full">
+                <div className="space-y-3 p-4">
+                  {o.campaignPromises.map((item, index) => (
+                    <article key={`${item.promise}-${index}`} className="rounded-2xl border border-muted bg-muted/45 p-4">
+                      <div className="mb-2 flex items-start justify-between gap-3">
+                        <h3 className="text-sm font-semibold leading-snug text-cocoa/90">{item.promise}</h3>
+                        <PromiseStatusBadge status={item.status} />
+                      </div>
+
+                      <a
+                        href={item.referenceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-rust underline-offset-2 hover:underline"
+                      >
+                        {item.referenceLabel}
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </article>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function PromiseStatusBadge({ status }: { status: "Fulfilled" | "In Progress" | "Not Fulfilled" }) {
+  const styles: Record<typeof status, string> = {
+    Fulfilled: "border-transparent bg-forest/15 text-forest",
+    "In Progress": "border-transparent bg-copper/15 text-rust",
+    "Not Fulfilled": "border-transparent bg-destructive/15 text-destructive",
+  };
+
+  return (
+    <Badge className={`shrink-0 whitespace-nowrap text-[10px] ${styles[status]}`}>
+      {status}
+    </Badge>
   );
 }
 
@@ -141,10 +220,10 @@ function InfoTile({ icon, label, value }: { icon: React.ReactNode; label: string
 function AccordionShell({ value, title, children }: { value: string; title: string; children: React.ReactNode }) {
   return (
     <AccordionItem value={value} className="overflow-hidden rounded-2xl border-0 bg-white shadow-card">
-      <AccordionTrigger className="px-6 py-4 font-display text-lg font-bold text-onyx hover:no-underline sm:text-xl">
+      <AccordionTrigger className="px-6 py-4 font-display text-lg font-bold text-rust hover:no-underline sm:text-xl">
         {title}
       </AccordionTrigger>
-      <AccordionContent className="px-6 pb-5">{children}</AccordionContent>
+      <AccordionContent className="px-6 pb-5 text-cocoa/90">{children}</AccordionContent>
     </AccordionItem>
   );
 }
