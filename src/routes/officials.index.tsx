@@ -1,22 +1,41 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { Search, MapPin, Filter, ChevronLeft, ChevronRight } from "lucide-react";
-import { officials } from "@/lib/mock-data";
+import { db } from "@/db/index";
 import { getUser } from "@/lib/auth";
 
+// 1. Fetch the list of officials from SQLite
+const getOfficialsList = createServerFn({ method: "GET" }).handler(async () => {
+  // Pull everyone and sort them alphabetically
+  const result = await db.execute("SELECT id, name, title, branch, location, bio FROM officials ORDER BY name ASC");
+  return result.rows;
+});
+
+// 2. Load the data before the page renders
 export const Route = createFileRoute("/officials/")({
   beforeLoad: () => { if (typeof window !== "undefined" && !getUser()) throw redirect({ to: "/login" }); },
+  loader: async () => await getOfficialsList(),
   head: () => ({ meta: [{ title: "Government Officials — P.A.T.A.G." }, { name: "description", content: "Search and explore verified government officials nationwide." }] }),
   component: OfficialsList,
 });
 
 function OfficialsList() {
+  // 3. Grab the live database records from the loader
+  const officials = Route.useLoaderData();
+  
   const [q, setQ] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 10;
-  const filtered = officials.filter(o => o.name.toLowerCase().includes(q.toLowerCase()) || o.position.toLowerCase().includes(q.toLowerCase()));
+  
+  // 4. Update the filter to search the new 'title' column instead of 'position'
+  const filtered = officials.filter((o: any) => 
+    o.name.toLowerCase().includes(q.toLowerCase()) || 
+    o.title.toLowerCase().includes(q.toLowerCase())
+  );
+  
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageStart = (currentPage - 1) * PAGE_SIZE;
@@ -50,7 +69,7 @@ function OfficialsList() {
               {/* Always-visible Tracker card */}
               <div className="rounded-2xl bg-gradient-to-br from-cocoa to-coffee p-5 text-cream shadow-card">
                 <div className="font-display text-lg leading-tight">Stay Informed on Pending and Approved Laws</div>
-                <Link to="/bills/" className="mt-4 inline-block rounded-full bg-forest px-4 py-1.5 text-xs font-semibold text-cream hover:opacity-90">View Tracker</Link>
+                <Link to="/bills" className="mt-4 inline-block rounded-full bg-forest px-4 py-1.5 text-xs font-semibold text-cream hover:opacity-90">View Tracker</Link>
               </div>
 
               {/* Collapsible Filters */}
@@ -83,23 +102,29 @@ function OfficialsList() {
               <div className="text-xs text-coffee">Sort by: <span className="font-semibold">Relevance</span></div>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {pageItems.map((o) => (
-                <Link key={o.id} to="/officials/$officialId" params={{ officialId: o.id }} className="group rounded-2xl border border-tan bg-white p-4 shadow-card transition hover:-translate-y-0.5">
-                  <div className="flex items-center gap-3">
-                    <img src={o.photo} alt={o.name} loading="lazy" width={56} height={56} className="h-14 w-14 rounded-full object-cover" />
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold text-cocoa">{o.name}</div>
-                      <div className="truncate text-sm text-coffee">{o.position}</div>
+              {pageItems.map((o: any) => {
+                // Generate a smart fallback avatar using their name!
+                const photoUrl = o.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(o.name)}&size=150&background=F3F0EA&color=34251D`;
+                
+                return (
+                  <Link key={o.id} to="/officials/$officialId" params={{ officialId: String(o.id) }} className="group rounded-2xl border border-tan bg-white p-4 shadow-card transition hover:-translate-y-0.5">
+                    <div className="flex items-center gap-3">
+                      <img src={photoUrl} alt={o.name} loading="lazy" width={56} height={56} className="h-14 w-14 rounded-full object-cover" />
+                      <div className="min-w-0">
+                        <div className="truncate font-semibold text-cocoa">{o.name}</div>
+                        {/* 5. Swapped position for title here */}
+                        <div className="truncate text-sm text-coffee">{o.title}</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-forest/15 px-2 py-0.5 text-forest font-semibold">⚖ {o.branch}</span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-copper/15 px-2 py-0.5 text-copper font-semibold">📍 {o.location}</span>
-                  </div>
-                  <p className="mt-3 line-clamp-2 text-sm text-cocoa/80">{o.bio}</p>
-                  <div className="mt-3 text-sm font-semibold text-rust group-hover:underline">View Profile →</div>
-                </Link>
-              ))}
+                    <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-forest/15 px-2 py-0.5 text-forest font-semibold">⚖ {o.branch}</span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-copper/15 px-2 py-0.5 text-copper font-semibold">📍 {o.location}</span>
+                    </div>
+                    <p className="mt-3 line-clamp-2 text-sm text-cocoa/80">{o.bio}</p>
+                    <div className="mt-3 text-sm font-semibold text-rust group-hover:underline">View Profile →</div>
+                  </Link>
+                );
+              })}
             </div>
             <div className="mt-6 flex flex-col items-start justify-between gap-3 text-xs text-coffee sm:flex-row sm:items-center">
               <div>
