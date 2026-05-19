@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AuthShell, Card, Field } from "./login";
 import { User, Mail, Calendar, Eye, EyeOff, Users, GraduationCap, Newspaper, Check, MapPin, Upload } from "lucide-react";
 import { setUser } from "@/lib/auth";
+import { registerUser } from "../functions/action";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({ meta: [{ title: "Create account — P.A.T.A.G." }, { name: "description", content: "Join PATAG." }] }),
@@ -204,174 +205,190 @@ function Signup() {
     </AuthShell>
   );
 
-  function finish(extra: Record<string, string>) {
-    setUser({ email: data.email, fullName: data.fullName, role, location: extra.city ?? "Philippines" });
-    navigate({ to: "/home" });
+
+  async function finish(extra: Record<string, string>) {
+    try {
+      await registerUser({
+        data: {
+          fullName: data.fullName,
+          email: data.email,
+          password: data.password,
+          dob: data.dob,
+          role: role,
+          location: extra.city ?? "Philippines"
+        }
+      });
+
+      navigate({ to: "/home" });
+
+    } catch (error: any) {
+      alert(error.message);
+      setStep(1);
+    }
   }
-}
 
-// --- Role Specific Forms ---
 
-function CitizenForm({ onSubmit }: { onSubmit: (x: Record<string, string>) => void }) {
-  const [city, setCity] = useState("");
-  const [voter, setVoter] = useState("Yes");
+  function CitizenForm({ onSubmit }: { onSubmit: (x: Record<string, string>) => void }) {
+    const [city, setCity] = useState("");
+    const [voter, setVoter] = useState("Yes");
 
-  return (
-    <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city }); }} className="mt-4">
-      <h1 className="font-display text-3xl text-cream">Tell us about you</h1>
-      <p className="mt-1 text-sm text-cream/70">Helps us surface data relevant to your community and sector.</p>
-      <div className="mt-5 space-y-4">
+    return (
+      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city }); }} className="mt-4">
+        <h1 className="font-display text-3xl text-cream">Tell us about you</h1>
+        <p className="mt-1 text-sm text-cream/70">Helps us surface data relevant to your community and sector.</p>
+        <div className="mt-5 space-y-4">
 
-        <Labeled label="Occupational industry">
-          <select className="auth-select">
-            <option>Select industry</option>
-            <option>Education</option>
-            <option>Healthcare</option>
-            <option>Government</option>
-          </select>
-        </Labeled>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Labeled label="City / Municipality">
-            <div className="flex items-center gap-2 border-b border-white/20 pb-2">
-              <MapPin className="h-4 w-4 text-cream/60" />
-              <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Batangas City" className="auth-input" />
-            </div>
-          </Labeled>
-          <Labeled label="Province">
+          <Labeled label="Occupational industry">
             <select className="auth-select">
-              <option>Select province</option>
-              <option>Batangas</option>
-              <option>Cebu</option>
-              <option>Metro Manila</option>
+              <option>Select industry</option>
+              <option>Education</option>
+              <option>Healthcare</option>
+              <option>Government</option>
             </select>
           </Labeled>
-        </div>
 
-        <Labeled label="Are you a registered voter?">
-          <div className="grid grid-cols-3 gap-2">
-            {["Yes", "No", "SK Voter"].map(o => (
-              <button
-                type="button"
-                key={o}
-                onClick={() => setVoter(o)}
-                className={"rounded-lg border py-2 text-sm transition " + (voter === o ? "border-copper bg-copper/20 text-cream" : "border-white/15 text-cream/80 hover:bg-white/5")}
-              >
-                <span className="mr-2">{voter === o ? "●" : "○"}</span>{o}
-              </button>
-            ))}
+          <div className="grid grid-cols-2 gap-3">
+            <Labeled label="City / Municipality">
+              <div className="flex items-center gap-2 border-b border-white/20 pb-2">
+                <MapPin className="h-4 w-4 text-cream/60" />
+                <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Batangas City" className="auth-input" />
+              </div>
+            </Labeled>
+            <Labeled label="Province">
+              <select className="auth-select">
+                <option>Select province</option>
+                <option>Batangas</option>
+                <option>Cebu</option>
+                <option>Metro Manila</option>
+              </select>
+            </Labeled>
           </div>
-        </Labeled>
 
-        {voter !== "No" && (
+          <Labeled label="Are you a registered voter?">
+            <div className="grid grid-cols-3 gap-2">
+              {["Yes", "No", "SK Voter"].map(o => (
+                <button
+                  type="button"
+                  key={o}
+                  onClick={() => setVoter(o)}
+                  className={"rounded-lg border py-2 text-sm transition " + (voter === o ? "border-copper bg-copper/20 text-cream" : "border-white/15 text-cream/80 hover:bg-white/5")}
+                >
+                  <span className="mr-2">{voter === o ? "●" : "○"}</span>{o}
+                </button>
+              ))}
+            </div>
+          </Labeled>
+
+          {voter !== "No" && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <Labeled label="Upload Voter's ID or Registration (Optional)">
+                <UploadBox />
+              </Labeled>
+              <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
+                Optional: Once reviewed by a PATAG admin, you will receive a Verified Voter badge on your profile. You can skip this and upload it later.
+              </div>
+            </div>
+          )}
+
+          <label className="flex items-start gap-2 text-xs text-cream/80">
+            <input required type="checkbox" className="mt-0.5 accent-copper" />
+            I agree to the <a className="text-copper underline">Terms of Service</a> and <a className="text-copper underline">Privacy Policy</a>
+          </label>
+        </div>
+        <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
+      </form>
+    );
+  }
+
+  function ResearcherForm({ onSubmit }: { onSubmit: (x: Record<string, string>) => void }) {
+    return (
+      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({}); }} className="mt-4">
+        <h1 className="font-display text-3xl text-cream">Research Details</h1>
+        <p className="mt-1 text-sm text-cream/70">Tell us where you study or work to tailor your data access.</p>
+        <div className="mt-5 space-y-4">
+          <Labeled label="Organization Type">
+            <select className="auth-select">
+              <option>Select organization type</option>
+              <option>High School / K-12</option>
+              <option>University / College</option>
+              <option>Think Tank</option>
+              <option>NGO</option>
+            </select>
+          </Labeled>
+          <Labeled label="Institution or Organization Name">
+            <input className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. Batangas State University" />
+          </Labeled>
           <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-            <Labeled label="Upload Voter's ID or Registration (Optional)">
+            <Labeled label="Upload Student or Institutional ID (Optional)">
               <UploadBox />
             </Labeled>
             <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
-              Optional: Once reviewed by a PATAG admin, you will receive a Verified Voter badge on your profile. You can skip this and upload it later.
+              Optional: Uploading a valid ID places your account in queue for a Verified Researcher badge, unlocking advanced data export tools after admin review.
             </div>
           </div>
-        )}
-
-        <label className="flex items-start gap-2 text-xs text-cream/80">
-          <input required type="checkbox" className="mt-0.5 accent-copper" />
-          I agree to the <a className="text-copper underline">Terms of Service</a> and <a className="text-copper underline">Privacy Policy</a>
-        </label>
-      </div>
-      <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
-    </form>
-  );
-}
-
-function ResearcherForm({ onSubmit }: { onSubmit: (x: Record<string, string>) => void }) {
-  return (
-    <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({}); }} className="mt-4">
-      <h1 className="font-display text-3xl text-cream">Research Details</h1>
-      <p className="mt-1 text-sm text-cream/70">Tell us where you study or work to tailor your data access.</p>
-      <div className="mt-5 space-y-4">
-        <Labeled label="Organization Type">
-          <select className="auth-select">
-            <option>Select organization type</option>
-            <option>High School / K-12</option>
-            <option>University / College</option>
-            <option>Think Tank</option>
-            <option>NGO</option>
-          </select>
-        </Labeled>
-        <Labeled label="Institution or Organization Name">
-          <input className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. Batangas State University" />
-        </Labeled>
-        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-          <Labeled label="Upload Student or Institutional ID (Optional)">
-            <UploadBox />
-          </Labeled>
-          <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
-            Optional: Uploading a valid ID places your account in queue for a Verified Researcher badge, unlocking advanced data export tools after admin review.
-          </div>
+          <label className="flex items-start gap-2 text-xs text-cream/80">
+            <input required type="checkbox" className="mt-0.5 accent-copper" />
+            I agree to the <a className="text-copper underline">Terms</a> and <a className="text-copper underline">Privacy Policy</a>
+          </label>
         </div>
-        <label className="flex items-start gap-2 text-xs text-cream/80">
-          <input required type="checkbox" className="mt-0.5 accent-copper" />
-          I agree to the <a className="text-copper underline">Terms</a> and <a className="text-copper underline">Privacy Policy</a>
-        </label>
-      </div>
-      <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
-    </form>
-  );
-}
+        <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
+      </form>
+    );
+  }
 
-function JournalistForm({ onSubmit }: { onSubmit: (x: Record<string, string>) => void }) {
-  return (
-    <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({}); }} className="mt-4">
-      <h1 className="font-display text-3xl text-cream">Verify your Credentials</h1>
-      <p className="mt-1 text-sm text-cream/70">Connect your publication to access raw datasets and PR contacts.</p>
-      <div className="mt-5 space-y-4">
-        <Labeled label="Institution / Publication Name">
-          <input className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. Philippine Daily Inquirer" />
-        </Labeled>
-        <Labeled label="Author portfolio or professional profile">
-          <input className="auth-input border-b border-white/20 pb-2 w-full" placeholder="https://" />
-        </Labeled>
-        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-          <Labeled label="Upload Professional or Press ID (Optional)">
-            <UploadBox />
+  function JournalistForm({ onSubmit }: { onSubmit: (x: Record<string, string>) => void }) {
+    return (
+      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({}); }} className="mt-4">
+        <h1 className="font-display text-3xl text-cream">Verify your Credentials</h1>
+        <p className="mt-1 text-sm text-cream/70">Connect your publication to access raw datasets and PR contacts.</p>
+        <div className="mt-5 space-y-4">
+          <Labeled label="Institution / Publication Name">
+            <input className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. Philippine Daily Inquirer" />
           </Labeled>
-          <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
-            Optional: Press accounts require human verification. You can create your account now and upload your credentials later to unlock full media access.
+          <Labeled label="Author portfolio or professional profile">
+            <input className="auth-input border-b border-white/20 pb-2 w-full" placeholder="https://" />
+          </Labeled>
+          <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+            <Labeled label="Upload Professional or Press ID (Optional)">
+              <UploadBox />
+            </Labeled>
+            <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
+              Optional: Press accounts require human verification. You can create your account now and upload your credentials later to unlock full media access.
+            </div>
           </div>
+          <label className="flex items-start gap-2 text-xs text-cream/80">
+            <input required type="checkbox" className="mt-0.5 accent-copper" />
+            I agree to the <a className="text-copper underline">Terms</a> and <a className="text-copper underline">Privacy Policy</a>
+          </label>
         </div>
-        <label className="flex items-start gap-2 text-xs text-cream/80">
-          <input required type="checkbox" className="mt-0.5 accent-copper" />
-          I agree to the <a className="text-copper underline">Terms</a> and <a className="text-copper underline">Privacy Policy</a>
-        </label>
+        <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
+      </form>
+    );
+  }
+
+  // --- Helper Components ---
+
+  function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
+    return (
+      <div>
+        <div className="mb-1 text-xs text-cream/70">{label}</div>
+        {children}
       </div>
-      <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
-    </form>
-  );
-}
+    );
+  }
 
-// --- Helper Components ---
-
-function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="mb-1 text-xs text-cream/70">{label}</div>
-      {children}
-    </div>
-  );
-}
-
-function UploadBox() {
-  return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-white/20 p-3 text-sm text-cream/80 hover:bg-white/5">
-      <span className="grid h-9 w-9 place-items-center rounded-md bg-copper/30 text-copper">
-        <Upload className="h-4 w-4" />
-      </span>
-      <span>
-        <span className="block font-medium text-cream">Click to upload</span>
-        <span className="block text-xs text-cream/60">JPG, PNG, or PDF · max 5 MB</span>
-      </span>
-      <input type="file" className="hidden" />
-    </label>
-  );
+  function UploadBox() {
+    return (
+      <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-white/20 p-3 text-sm text-cream/80 hover:bg-white/5">
+        <span className="grid h-9 w-9 place-items-center rounded-md bg-copper/30 text-copper">
+          <Upload className="h-4 w-4" />
+        </span>
+        <span>
+          <span className="block font-medium text-cream">Click to upload</span>
+          <span className="block text-xs text-cream/60">JPG, PNG, or PDF · max 5 MB</span>
+        </span>
+        <input type="file" className="hidden" />
+      </label>
+    );
+  }
 }
