@@ -2,6 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import shield from "@/assets/patag-shield.png";
 import { ArrowRight, ArrowDown, Building2, Clock3, Gavel, Scale, Search, Shield, Users, ShieldCheck, Newspaper } from "lucide-react";
+import { getUser } from "@/lib/auth";
+import { AppNav } from "@/components/AppNav";
 
 const FRONT_PAGE_HIGHLIGHTS = [
   {
@@ -64,6 +66,8 @@ function Landing() {
   const [isHeadlineRotationPaused, setIsHeadlineRotationPaused] = useState(false);
   const [liveHeadlines, setLiveHeadlines] = useState<any[]>([]);
 
+  const user = typeof window !== "undefined" ? getUser() : null;
+
   useEffect(() => {
     async function fetchNews() {
       try {
@@ -112,18 +116,22 @@ function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream via-white to-cream">
       
-      {/* Custom Anonymous Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-onyx/90 backdrop-blur-md shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <img src={shield} alt="P.A.T.A.G." className="h-8 w-8" />
-            <span className="font-display text-xl font-bold tracking-widest text-cream">P.A.T.A.G.</span>
+      {/* Dynamic Header Integration */}
+      {user ? (
+        <AppNav />
+      ) : (
+        <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-onyx/90 backdrop-blur-md shadow-sm">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-3">
+              <img src={shield} alt="P.A.T.A.G." className="h-8 w-8" />
+              <span className="font-display text-xl font-bold tracking-widest text-cream">P.A.T.A.G.</span>
+            </div>
+            <Link to="/login" className="rounded-full bg-cream px-6 py-2 text-sm font-semibold text-onyx transition hover:bg-white hover:shadow-md">
+              Login
+            </Link>
           </div>
-          <Link to="/login" className="rounded-full bg-cream px-6 py-2 text-sm font-semibold text-onyx transition hover:bg-white hover:shadow-md">
-            Login
-          </Link>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-hero text-cream">
@@ -159,26 +167,29 @@ function Landing() {
                 3 · Review legislative actions
               </span>
             </div>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-bold text-onyx shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:bg-cream"
-              >
-                Access Platform <ArrowRight className="h-4 w-4" />
-              </Link>
-              <button
-                onClick={() => scrollToSection('services')}
-                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-transparent px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:border-white/50"
-              >
-                Explore tools <ArrowDown className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => scrollToSection('about')}
-                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-transparent px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:border-white/50"
-              >
-                Read Manifesto <ArrowDown className="h-4 w-4" />
-              </button>
-            </div>
+            
+            {!user && (
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-bold text-onyx shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:bg-cream"
+                >
+                  Access Platform <ArrowRight className="h-4 w-4" />
+                </Link>
+                <button
+                  onClick={() => scrollToSection('services')}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-transparent px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:border-white/50"
+                >
+                  Explore tools <ArrowDown className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => scrollToSection('about')}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-transparent px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:border-white/50"
+                >
+                  Read Manifesto <ArrowDown className="h-4 w-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -338,24 +349,28 @@ function Landing() {
           
           <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <ServiceCard 
+              to="/officials/"
               accentClass="bg-forest" 
               icon={<Users className="h-6 w-6" />} 
               title="Officials Directory" 
               desc="Verified profiles for elected and appointed high-ranking officials." 
             />
             <ServiceCard 
+              to="/bills/"
               accentClass="bg-rust" 
               icon={<Scale className="h-6 w-6" />} 
               title="Legislative Tracker" 
               desc="Records of bills, legislative stages, and executive authorship." 
             />
             <ServiceCard 
+              to="/truth-hub"
               accentClass="bg-copper" 
               icon={<ShieldCheck className="h-6 w-6" />} 
               title="Truth Media Hub" 
               desc="Systems to detect deepfakes and verify circulating articles." 
             />
             <ServiceCard 
+              to="/"
               accentClass="bg-mocha" 
               icon={<Newspaper className="h-6 w-6" />} 
               title="Public Pulse" 
@@ -413,12 +428,17 @@ function Landing() {
   );
 }
 
-function ServiceCard({ icon, title, desc, accentClass }: { icon: ReactNode; title: string; desc: string; accentClass: string }) {
+function ServiceCard({ icon, title, desc, accentClass, to }: { icon: ReactNode; title: string; desc: string; accentClass: string; to: string }) {
   const navigate = useNavigate();
+  const user = typeof window !== "undefined" ? getUser() : null;
 
   const handleClick = () => {
-    alert("Please log in first to access platform services.");
-    navigate({ to: "/login" });
+    if (!user) {
+      alert("Please log in first to access platform services.");
+      navigate({ to: "/login" });
+    } else {
+      navigate({ to });
+    }
   };
 
   return (
