@@ -7,14 +7,22 @@ export const db = new Database("patag.db", { create: true });
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    fullName TEXT,
-    email TEXT UNIQUE,
-    password TEXT,
-    dob TEXT,
-    role TEXT,
-    location TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
+    fullName TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    
+    -- Role & Verification
+    role TEXT DEFAULT 'citizen',             
+    voterIdUrl TEXT,                         
+    isVerified BOOLEAN DEFAULT 0,            
+    
+    -- Citizen Demographics
+    industry TEXT,                           -- Stores 'Education', 'IT / Technology', 'Others', etc.
+    specificWork TEXT,                       -- Stores the typed-in job title or specific work
+    province TEXT,                           
+    city TEXT,                               
+    voterType TEXT                           -- Stores 'Regular Voter', 'SK Voter', etc.
+  );
 `);
 
 console.log("SQLite Database Ready!");
