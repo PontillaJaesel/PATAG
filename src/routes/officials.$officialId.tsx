@@ -2,18 +2,76 @@ import { createFileRoute, Link, redirect, notFound } from "@tanstack/react-route
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db/index"; // Assumes your db is exported from here!
 import { AppNav } from "@/components/AppNav";
-import { ArrowLeft, Building2, Calendar, ShieldCheck, FileText, Landmark, MapPin } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, ShieldCheck, FileText, Landmark, MapPin, ThumbsDown, ThumbsUp } from "lucide-react";
 import { getUser } from "@/lib/auth";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { useOfficialReactions } from "@/lib/official-reactions";
+import { getAgencySecretaryPhotoPath, getOfficialPhotoPath } from "@/lib/public-images";
+import { z } from "zod";
 
 // 1. Fetch the data directly from SQLite
-const getOfficialById = createServerFn<unknown, "GET", { data: string }, any>({ method: "GET" })
-  .handler(async ({ data: id }: { data: string }) => {
+const getOfficialById = createServerFn({ method: "POST" })
+  .inputValidator(z.string())
+  .handler(async ({ data: id }) => {
+    const officialId = Number(id);
+    if (Number.isNaN(officialId)) return null;
+
+    if (officialId < 0) {
+      const agencyId = Math.abs(officialId);
+      const agencyResult = await db.execute({
+        sql: "SELECT * FROM agencies WHERE id = ?",
+        args: [agencyId],
+      });
+      const agencyRow: any = agencyResult.rows[0];
+      if (!agencyRow) return null;
+
+      const detailsResult = await db.execute({
+        sql: "SELECT * FROM agency_details WHERE agency_id = ?",
+        args: [agencyId],
+      });
+      const detailsRow: any = detailsResult.rows[0] ?? {};
+
+      const programs = JSON.parse(String(agencyRow.programs ?? "[]")) as string[];
+      const overviewPoints = JSON.parse(String(agencyRow.overview_points ?? "[]")) as string[];
+
+      return {
+        id: officialId,
+        name: agencyRow.secretary_name ?? "Unknown Secretary",
+        photo: getAgencySecretaryPhotoPath(String(agencyRow.secretary_name ?? "")) || agencyRow.secretary_photo || "",
+        title: agencyRow.secretary_title ?? "Secretary",
+        department: "Manila",
+        branch: "Executive",
+        location: "Manila",
+        bio: agencyRow.secretary_bio ?? "",
+        date_assumed: detailsRow.secretary_assumed_date ?? "N/A",
+        status: "Active",
+        appointed_by: "Office of the President",
+        policies: overviewPoints,
+        careerHistory: [
+          {
+            period: detailsRow.secretary_assumed_date ?? "Current",
+            role: agencyRow.secretary_title ?? "Secretary",
+          },
+        ],
+        publicRecords: [
+          { title: "Agency Mandate", value: agencyRow.mandate ?? "" },
+          { title: "Service Scope", value: agencyRow.kind ?? "Executive" },
+        ],
+        news: agencyRow.description ?? "",
+        sources: agencyRow.website ?? "",
+        promises: programs.map((program: string) => ({
+          title: program,
+          status: "In Progress",
+          link: program,
+        })),
+      };
+    }
+
     const result = await db.execute({
       sql: "SELECT * FROM officials WHERE id = ?",
-      args: [Number(id)]
+      args: [officialId]
     });
-    
+
     const row: any = result.rows[0];
     if (!row) return null;
 
@@ -50,9 +108,14 @@ export const Route = createFileRoute("/officials/$officialId")({
 function OfficialProfile() {
   // 3. Grab the loaded database data
   const o = Route.useLoaderData();
+  const { likes, dislikes } = useOfficialReactions(String(o.id));
 
   // Fallback for photo if one isn't in the DB yet
-  const photoUrl = o.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(o.name)}&size=400&background=F3F0EA&color=34251D`;
+  const localPhotoPath = getOfficialPhotoPath(o.name);
+  const photoUrl =
+    localPhotoPath ||
+    o.photo ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(o.name)}&size=400&background=F3F0EA&color=34251D`;
 
   return (
     <div className="min-h-screen bg-muted">
@@ -105,6 +168,15 @@ function OfficialProfile() {
             <div className="rounded-3xl bg-white p-6 shadow-card sm:p-8">
               <h1 className="font-display text-3xl font-bold text-onyx sm:text-5xl">{o.name}</h1>
               <p className="mt-2 text-base font-medium text-cocoa sm:text-lg">{o.title}</p>
+
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider">
+                <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 ${likes > 0 ? "bg-forest/15 text-forest" : "bg-muted text-cocoa"}`}>
+                  <ThumbsUp className="h-3.5 w-3.5" /> Likes {likes}
+                </span>
+                <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 ${dislikes > 0 ? "bg-rust/15 text-rust" : "bg-muted text-cocoa"}`}>
+                  <ThumbsDown className="h-3.5 w-3.5" /> Dislikes {dislikes}
+                </span>
+              </div>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <InfoTile icon={<Building2 className="h-4 w-4" />} label="DEPARTMENT" value={o.department} />

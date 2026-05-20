@@ -1,7 +1,19 @@
-// src/db/index.ts
-import { createClient } from "@libsql/client";
+import { createClient, type Client } from "@libsql/client";
 
-// Connects to your existing local patag.sqlite file
-export const db = createClient({
-  url: "file:patag.sqlite",
-});
+const isServer = import.meta.env.SSR;
+
+// Only open the SQLite client on the server. The browser bundle still imports
+// this module indirectly through route files, so we must avoid creating a
+// file-based client there.
+export const db = isServer
+  ? createClient({
+      url: "file:patag.sqlite",
+    })
+  : new Proxy(
+      {},
+      {
+        get() {
+          throw new Error("Database access is server-only.");
+        },
+      },
+    ) as Client;

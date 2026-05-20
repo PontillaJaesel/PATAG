@@ -21,6 +21,7 @@ import { Route as OfficialsIndexRouteImport } from './routes/officials.index'
 import { Route as BillsIndexRouteImport } from './routes/bills.index'
 import { Route as OfficialsOfficialIdRouteImport } from './routes/officials.$officialId'
 import { Route as BillsBillIdRouteImport } from './routes/bills.$billId'
+import { Route as OfficialsAgenciesAgencyIdRouteImport } from './routes/officials.agencies.$agencyId'
 
 const TruthHubRoute = TruthHubRouteImport.update({
   id: '/truth-hub',
@@ -82,6 +83,12 @@ const BillsBillIdRoute = BillsBillIdRouteImport.update({
   path: '/bills/$billId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OfficialsAgenciesAgencyIdRoute =
+  OfficialsAgenciesAgencyIdRouteImport.update({
+    id: '/officials/agencies/$agencyId',
+    path: '/officials/agencies/$agencyId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills/': typeof BillsIndexRoute
   '/officials/': typeof OfficialsIndexRoute
+  '/officials/agencies/$agencyId': typeof OfficialsAgenciesAgencyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +118,7 @@ export interface FileRoutesByTo {
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills': typeof BillsIndexRoute
   '/officials': typeof OfficialsIndexRoute
+  '/officials/agencies/$agencyId': typeof OfficialsAgenciesAgencyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +134,7 @@ export interface FileRoutesById {
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills/': typeof BillsIndexRoute
   '/officials/': typeof OfficialsIndexRoute
+  '/officials/agencies/$agencyId': typeof OfficialsAgenciesAgencyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/officials/$officialId'
     | '/bills/'
     | '/officials/'
+    | '/officials/agencies/$agencyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/officials/$officialId'
     | '/bills'
     | '/officials'
+    | '/officials/agencies/$agencyId'
   id:
     | '__root__'
     | '/'
@@ -169,6 +181,7 @@ export interface FileRouteTypes {
     | '/officials/$officialId'
     | '/bills/'
     | '/officials/'
+    | '/officials/agencies/$agencyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +197,7 @@ export interface RootRouteChildren {
   OfficialsOfficialIdRoute: typeof OfficialsOfficialIdRoute
   BillsIndexRoute: typeof BillsIndexRoute
   OfficialsIndexRoute: typeof OfficialsIndexRoute
+  OfficialsAgenciesAgencyIdRoute: typeof OfficialsAgenciesAgencyIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -272,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillsBillIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/officials/agencies/$agencyId': {
+      id: '/officials/agencies/$agencyId'
+      path: '/officials/agencies/$agencyId'
+      fullPath: '/officials/agencies/$agencyId'
+      preLoaderRoute: typeof OfficialsAgenciesAgencyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -288,6 +309,7 @@ const rootRouteChildren: RootRouteChildren = {
   OfficialsOfficialIdRoute: OfficialsOfficialIdRoute,
   BillsIndexRoute: BillsIndexRoute,
   OfficialsIndexRoute: OfficialsIndexRoute,
+  OfficialsAgenciesAgencyIdRoute: OfficialsAgenciesAgencyIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

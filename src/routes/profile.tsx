@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { getUser, setUser } from "@/lib/auth";
+import { useBookmarks, type BookmarkedAgency, type BookmarkedOfficial } from "@/lib/bookmarks";
 import shield from "@/assets/patag-shield.png";
 import {
   User,
@@ -20,6 +21,7 @@ import {
   Trash2,
   Lock,
   Landmark,
+  Building2,
   Image as ImageIcon,
 } from "lucide-react";
 
@@ -232,17 +234,51 @@ function ProfileTab({ user }: { user: any }) {
 }
 
 function ActivityTab() {
+  const trackedOfficials = useBookmarks<BookmarkedOfficial>("officials");
+  const savedAgencies = useBookmarks<BookmarkedAgency>("agencies");
+
   return (
     <div className="space-y-6">
       <div className="rounded-3xl border border-tan/80 bg-white p-8 shadow-card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-display text-2xl text-cocoa">Tracked Officials</h2>
-          <span className="text-xs font-semibold text-copper">2 Saved</span>
+          <span className="text-xs font-semibold text-copper">{trackedOfficials.length} Saved</span>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <ActivityCard icon={<Landmark className="h-5 w-5 text-forest" />} title="Sen. Risa Hontiveros" subtitle="Legislative Branch" />
-          <ActivityCard icon={<Landmark className="h-5 w-5 text-forest" />} title="Sec. Ralph Recto" subtitle="Executive Branch" />
+        {trackedOfficials.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {trackedOfficials.map((official) => (
+              <ActivityCard
+                key={official.id}
+                icon={<Landmark className="h-5 w-5 text-forest" />}
+                title={official.name}
+                subtitle={`${official.title} • ${official.branch}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-coffee">No officials bookmarked yet.</p>
+        )}
+      </div>
+
+      <div className="rounded-3xl border border-tan/80 bg-white p-8 shadow-card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-2xl text-cocoa">Saved Agencies & Departments</h2>
+          <span className="text-xs font-semibold text-copper">{savedAgencies.length} Saved</span>
         </div>
+        {savedAgencies.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {savedAgencies.map((agency) => (
+              <ActivityCard
+                key={agency.id}
+                icon={<Building2 className="h-5 w-5 text-copper" />}
+                title={agency.name}
+                subtitle={`${agency.kind} • ${agency.headquarters}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-coffee">No agencies bookmarked yet.</p>
+        )}
       </div>
 
       <div className="rounded-3xl border border-tan/80 bg-white p-8 shadow-card">
