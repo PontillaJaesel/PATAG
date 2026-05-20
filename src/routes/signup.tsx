@@ -310,7 +310,8 @@ function Signup() {
         }
       });
 
-      navigate({ to: "/home" });
+      // Updated to point directly to your new landing page!
+      navigate({ to: "/" });
 
     } catch (error: any) {
       alert(error.message);
@@ -519,7 +520,6 @@ function Signup() {
     );
   }
 
-  // --- Helper Components ---
   function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
     return (
       <div>
