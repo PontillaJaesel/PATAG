@@ -664,7 +664,7 @@ async function seedOfficials() {
   `);
 
   console.log(`Inserting ${officialsToInsert.length} senators into the database...`);
-  
+
   for (const o of officialsToInsert) {
     await db.execute({
       sql: `
