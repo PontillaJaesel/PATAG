@@ -43,10 +43,12 @@ const getBillById = createServerFn({ method: "GET" })
       category: row.category || "Uncategorized", 
       stage: row.stage || 1, 
       authors: String(row.authors || "Unknown").split(',').map((a: string) => a.trim()), 
+      
+      // Updated to pull from your new schema fields
       news: [{ 
         source: "Official Source", 
-        title: row.source_link || "View Official Document", 
-        link: row.source_link?.startsWith('http') ? row.source_link : `https://google.com/search?q=${row.source_link}`,
+        title: row.source_text || "View Official Document", 
+        link: row.source_url || "",
         timestamp: row.date_filed 
       }], 
       pulse: {
@@ -194,20 +196,22 @@ function BillPage() {
               {b.news.map((n: any) => (
                 <li key={n.title} className="rounded-2xl border border-dotted border-cocoa/40 bg-transparent p-5">
                   <div className="text-[11px] uppercase tracking-wider text-mocha">{n.source}</div>
-                  <div className="mt-1 text-base font-semibold uppercase tracking-wide text-cocoa">
+                  <div className="mt-1">
                     
-                    {/* THIS MAKES IT A CLICKABLE LINK */}
+                    {/* IMPLEMENTED CHANGES HERE */}
                     {n.link ? (
                       <a 
                         href={n.link} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="hover:text-rust hover:underline underline-offset-4 transition-colors"
+                        className="text-lg font-bold text-brown-800 hover:underline hover:text-brown-600 transition-colors uppercase tracking-wide"
                       >
-                        {n.title}
+                        {n.title || "View Official Document"}
                       </a>
                     ) : (
-                      n.title
+                      <span className="text-lg font-bold text-cocoa uppercase tracking-wide">
+                        {n.title || "View Official Document"}
+                      </span>
                     )}
 
                   </div>
