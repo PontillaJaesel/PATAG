@@ -34,7 +34,7 @@ function LoginPage() {
             e.preventDefault();
             if (!email || !password) return;
             setUser({ email, fullName: email.split("@")[0], role: "citizen" });
-            navigate({ to: "/home" });
+            navigate({ to: "/" });
           }}
         >
           <Field icon={<Mail className="h-4 w-4" />}>
