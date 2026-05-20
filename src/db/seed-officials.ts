@@ -202,7 +202,7 @@ const officialsToInsert = [
   },
   {
     name: "Alan Peter Cayetano",
-    photo: "/officials/acayetano.png",
+    photo: "public/officials/acayetano.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
