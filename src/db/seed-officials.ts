@@ -9,6 +9,7 @@ const officialsToInsert = [
   // --- 2022 ELECTED SENATORS ---
   {
     name: "Risa Hontiveros",
+    photo: "/officials/hontiveros.png", // Insert your image link here later!
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2016",
@@ -37,6 +38,7 @@ const officialsToInsert = [
   },
   {
     name: "Francis Escudero",
+    photo: "/officials/escudero.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -65,6 +67,7 @@ const officialsToInsert = [
   },
   {
     name: "Raffy Tulfo",
+    photo: "/officials/rtulfo.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -92,6 +95,7 @@ const officialsToInsert = [
   },
   {
     name: "Robin Padilla",
+    photo: "/officials/padilla.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -117,6 +121,7 @@ const officialsToInsert = [
   },
   {
     name: "Loren Legarda",
+    photo: "/officials/legarda.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -143,6 +148,7 @@ const officialsToInsert = [
   },
   {
     name: "Sherwin Gatchalian",
+    photo: "/officials/gatchalian.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2016",
@@ -169,6 +175,7 @@ const officialsToInsert = [
   },
   {
     name: "Mark Villar",
+    photo: "/officials/mvillar.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -195,6 +202,7 @@ const officialsToInsert = [
   },
   {
     name: "Alan Peter Cayetano",
+    photo: "/officials/acayetano.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -221,6 +229,7 @@ const officialsToInsert = [
   },
   {
     name: "Juan Miguel Zubiri",
+    photo: "/officials/zubiri.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2016",
@@ -247,6 +256,7 @@ const officialsToInsert = [
   },
   {
     name: "Joel Villanueva",
+    photo: "/officials/villanueva.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2016",
@@ -273,6 +283,7 @@ const officialsToInsert = [
   },
   {
     name: "JV Ejercito",
+    photo: "/officials/ejercito.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -299,6 +310,7 @@ const officialsToInsert = [
   },
   {
     name: "Jinggoy Estrada",
+    photo: "/officials/estrada.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -327,6 +339,7 @@ const officialsToInsert = [
   // --- 2025 ELECTED SENATORS ---
   {
     name: "Bong Go",
+    photo: "/officials/go.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -352,6 +365,7 @@ const officialsToInsert = [
   },
   {
     name: "Bam Aquino",
+    photo: "/officials/aquino.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -378,6 +392,7 @@ const officialsToInsert = [
   },
   {
     name: "Ronald dela Rosa",
+    photo: "/officials/delarosa.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -404,6 +419,7 @@ const officialsToInsert = [
   },
   {
     name: "Erwin Tulfo",
+    photo: "/officials/etulfo.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -430,6 +446,7 @@ const officialsToInsert = [
   },
   {
     name: "Kiko Pangilinan",
+    photo: "/officials/pangilinan.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -456,6 +473,7 @@ const officialsToInsert = [
   },
   {
     name: "Rodante Marcoleta",
+    photo: "/officials/marcoleta.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -482,6 +500,7 @@ const officialsToInsert = [
   },
   {
     name: "Panfilo Lacson",
+    photo: "/officials/lacson.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -508,6 +527,7 @@ const officialsToInsert = [
   },
   {
     name: "Tito Sotto",
+    photo: "/officials/sotto.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -534,6 +554,7 @@ const officialsToInsert = [
   },
   {
     name: "Pia Cayetano",
+    photo: "/officials/pcayetano.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -560,6 +581,7 @@ const officialsToInsert = [
   },
   {
     name: "Camille Villar",
+    photo: "/officials/cvillar.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -585,6 +607,7 @@ const officialsToInsert = [
   },
   {
     name: "Lito Lapid",
+    photo: "/officials/lapid.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -611,6 +634,7 @@ const officialsToInsert = [
   },
   {
     name: "Imee Marcos",
+    photo: "/officials/marcos.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2025",
@@ -659,7 +683,8 @@ async function seedOfficials() {
       public_records TEXT NOT NULL,
       news TEXT NOT NULL,
       sources TEXT NOT NULL,
-      promises TEXT NOT NULL
+      promises TEXT NOT NULL,
+      photo TEXT
     )
   `);
 
@@ -671,13 +696,13 @@ async function seedOfficials() {
         INSERT INTO officials (
           name, title, department, date_assumed, status, appointed_by, 
           branch, location, bio, policies, career_history, public_records, 
-          news, sources, promises
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          news, sources, promises, photo
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       args: [
         o.name, o.title, o.department, o.date_assumed, o.status, o.appointed_by,
         o.branch, o.location, o.bio, o.policies, o.career_history, o.public_records,
-        o.news, o.sources, o.promises
+        o.news, o.sources, o.promises, o.photo
       ]
     });
   }

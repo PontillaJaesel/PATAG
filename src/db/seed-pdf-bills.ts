@@ -336,9 +336,9 @@ const billsToInsert = [
   {
     bill_no: "RA 12312", 
     title: "Anti-POGO Act of 2024",
-    date_filed: "October 23, 2025", 
+    date_filed: "May 11, 2024", 
     category: "Justice / Social Welfare",
-    authors: "Sen. Win T. Gatchalian, Sen. Joel J. Villanueva, Sen. Risa N. Hontiveros",
+    authors: "Senate of the Philippines",
     status: "Enacted", 
     stage: 5, 
     brief_description: "Completely bans Philippine Offshore Gaming Operators (POGOs).",
