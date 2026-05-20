@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppNav } from "@/components/AppNav";
-import { Footer } from "@/components/Footer";
 import { getUser } from "@/lib/auth";
+import shield from "@/assets/patag-shield.png";
 import {
   User,
   Activity,
@@ -22,6 +22,7 @@ import {
   Sun,
   Lock,
   Landmark,
+  Calendar,
 } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -84,7 +85,20 @@ function ProfilePage() {
         </div>
       </section>
 
-      <Footer />
+      {/* Custom Anonymous Footer matching index.tsx */}
+      <footer className="bg-[#1a1513] py-14 text-center text-cream/70 border-t border-white/5">
+        <div className="mx-auto max-w-7xl px-6 flex flex-col items-center">
+          <img src={shield} alt="" className="h-12 w-12 opacity-30 grayscale mb-6" />
+          <p className="font-display text-2xl tracking-widest text-cream/90">P.A.T.A.G.</p>
+          <p className="mt-3 text-xs uppercase tracking-[0.3em] font-semibold text-copper">Decentralized • Anonymous • Uncompromised</p>
+          
+          <div className="mt-10 max-w-2xl text-[11px] leading-relaxed opacity-50">
+            Information presented on this platform is aggregated directly from public domain records, official government gazettes, and verified media sources. 
+            Identities of platform maintainers, node operators, and researchers remain strictly confidential to preserve operational integrity and ensure the safety of the network. 
+            No tracking scripts are deployed. Access remains completely unrestricted.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -92,30 +106,44 @@ function ProfilePage() {
 // --- TAB COMPONENTS ---
 
 function ProfileTab({ user }: { user: any }) {
+  const displayRole = user?.role === "researcher" ? "Student / Researcher" 
+                    : user?.role === "journalist" ? "Journalist / Media" 
+                    : "Citizen / Voter";
+
   return (
     <div className="space-y-6">
       <div className="rounded-3xl border border-tan/80 bg-white p-8 shadow-card">
-        <h2 className="font-display text-2xl text-cocoa">Personal Information</h2>
-        <p className="mt-1 text-sm text-coffee">Update your basic details and demographics.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-2xl text-cocoa">Personal Information</h2>
+            <p className="mt-1 text-sm text-coffee">Update your basic details. Verified fields cannot be changed.</p>
+          </div>
+        </div>
         
         <form className="mt-6 space-y-5" onSubmit={(e) => e.preventDefault()}>
           <div className="grid gap-5 md:grid-cols-2">
             <InputGroup icon={<User />} label="Display Name" defaultValue={user?.fullName || ""} />
-            <InputGroup icon={<Mail />} label="Email Address" defaultValue={user?.email || ""} type="email" />
+            <LockedField icon={<Mail />} label="Email Address" value={user?.email || "citizen@example.com"} tooltip="Email is linked to your verified identity." />
           </div>
 
           <div className="border-t border-tan/50 pt-5 mt-5">
             <h3 className="font-display text-lg text-cocoa mb-4">Civic Demographics</h3>
-            <div className="rounded-lg bg-copper/10 p-3 mb-5 border border-copper/20 text-xs text-cocoa/80 flex gap-3 items-start">
-              <ShieldAlert className="h-4 w-4 text-copper shrink-0 mt-0.5" />
-              <p>Privacy Notice: To protect your identity, PATAG does not collect exact house addresses. Only your legislative district is required for accurate political mapping and surveys.</p>
-            </div>
             
             <div className="grid gap-5 md:grid-cols-2">
-              <SelectGroup label="Voter Verification Status" options={["Registered Voter", "Unregistered", "SK Voter"]} />
+              <LockedField 
+                icon={<ShieldAlert />} 
+                label="Account Role" 
+                value={displayRole} 
+                tooltip="Assigned during registration." 
+              />
+              <LockedField 
+                icon={<Briefcase />} 
+                label="Sector / Affiliation" 
+                value="Pending Verification" 
+                tooltip="Based on your signup credentials." 
+              />
               <InputGroup icon={<MapPin />} label="City / Municipality" defaultValue={user?.location || "Batangas City"} />
               <SelectGroup label="Province" options={["Batangas", "Metro Manila", "Cebu", "Cavite"]} />
-              <SelectGroup label="Sector Affiliation" options={["Student / Academe", "Healthcare", "Agriculture", "Business & Trade", "Government"]} />
             </div>
           </div>
 
@@ -280,6 +308,22 @@ function InputGroup({ icon, label, defaultValue, type = "text" }: { icon: React.
           className="w-full bg-transparent text-sm text-onyx outline-none placeholder:text-coffee/50"
         />
       </div>
+    </div>
+  );
+}
+
+function LockedField({ icon, label, value, tooltip }: { icon: React.ReactNode; label: string; value: string; tooltip: string }) {
+  return (
+    <div className="group flex flex-col gap-1.5">
+      <div className="flex items-center justify-between pl-1">
+        <label className="text-xs font-semibold uppercase tracking-wider text-mocha">{label}</label>
+        <Lock className="h-3 w-3 text-mocha" />
+      </div>
+      <div className="flex items-center gap-3 rounded-xl border border-tan/40 bg-black/5 px-4 py-2.5 shadow-inner select-none">
+        <span className="text-coffee/50 [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
+        <div className="w-full text-sm text-onyx/70 font-medium cursor-not-allowed">{value}</div>
+      </div>
+      <div className="text-[10px] text-mocha pl-1 leading-tight">{tooltip}</div>
     </div>
   );
 }
