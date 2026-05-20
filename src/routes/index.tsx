@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import shield from "@/assets/patag-shield.png";
-import { ArrowRight, ArrowDown, Building2, Clock3, Gavel, Scale, Search, Shield, Users, ShieldCheck, Newspaper } from "lucide-react";
+import { ArrowRight, ArrowDown, Building2, Clock3, Gavel, Scale, Search, Shield, Users, ShieldCheck } from "lucide-react";
 import { getUser } from "@/lib/auth";
 import { AppNav } from "@/components/AppNav";
 
@@ -347,34 +347,24 @@ function Landing() {
             </p>
           </div>
           
-          <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-16 grid gap-6 md:grid-cols-3">
             <ServiceCard 
-              to="/officials/"
               accentClass="bg-forest" 
               icon={<Users className="h-6 w-6" />} 
               title="Officials Directory" 
               desc="Verified profiles for elected and appointed high-ranking officials." 
             />
             <ServiceCard 
-              to="/bills/"
               accentClass="bg-rust" 
               icon={<Scale className="h-6 w-6" />} 
               title="Legislative Tracker" 
               desc="Records of bills, legislative stages, and executive authorship." 
             />
             <ServiceCard 
-              to="/truth-hub"
               accentClass="bg-copper" 
               icon={<ShieldCheck className="h-6 w-6" />} 
               title="Truth Media Hub" 
               desc="Systems to detect deepfakes and verify circulating articles." 
-            />
-            <ServiceCard 
-              to="/"
-              accentClass="bg-mocha" 
-              icon={<Newspaper className="h-6 w-6" />} 
-              title="Public Pulse" 
-              desc="Civic sentiment data grounded entirely in verified evidence." 
             />
           </div>
         </div>
@@ -428,17 +418,12 @@ function Landing() {
   );
 }
 
-function ServiceCard({ icon, title, desc, accentClass, to }: { icon: ReactNode; title: string; desc: string; accentClass: string; to: string }) {
+function ServiceCard({ icon, title, desc, accentClass }: { icon: ReactNode; title: string; desc: string; accentClass: string }) {
   const navigate = useNavigate();
-  const user = typeof window !== "undefined" ? getUser() : null;
 
   const handleClick = () => {
-    if (!user) {
-      alert("Please log in first to access platform services.");
-      navigate({ to: "/login" });
-    } else {
-      navigate({ to });
-    }
+    alert("Please log in first to access platform services.");
+    navigate({ to: "/login" });
   };
 
   return (

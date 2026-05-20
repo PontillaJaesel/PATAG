@@ -312,7 +312,8 @@ function Signup() {
         }
       });
 
-      navigate({ to: "/home" });
+      // Updated to point directly to your new landing page!
+      navigate({ to: "/" });
 
     } catch (error: any) {
       alert(error.message);
@@ -374,7 +375,7 @@ function Signup() {
                 value={province}
                 onChange={(e) => {
                   setProvince(e.target.value);
-                  setCity(""); // <--- CRITICAL: Reset city when province changes!
+                  setCity(""); 
                 }}
                 required
               >
@@ -389,19 +390,17 @@ function Signup() {
               <div className="flex items-center gap-2 border-b border-white/20 pb-2">
                 <MapPin className="h-4 w-4 text-cream/60" />
 
-                {/* Change from standard <input> to <select> */}
                 <select
                   className="w-full bg-transparent text-cream focus:outline-none appearance-none"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   required
-                  disabled={!province} // Disable until a province is chosen!
+                  disabled={!province} 
                 >
                   <option value="" disabled>
                     {province ? "Select city" : "Select province first"}
                   </option>
 
-                  {/* Dynamically render cities based on the selected province */}
                   {province && locationData[province].map(c => (
                     <option key={c} value={c} className="bg-onyx text-cream">
                       {c}
@@ -431,7 +430,6 @@ function Signup() {
           {voterType && voterType !== "Not a Voter" && (
             <div className="animate-in fade-in slide-in-from-top-2 duration-300">
               <Labeled label="Upload Voter's ID or Registration (Optional)">
-                {/* Connect the state to the upgraded UploadBox */}
                 <UploadBox
                   file={idFile}
                   onChange={(e) => setIdFile(e.target.files?.[0] ?? null)}
