@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TruthHubRouteImport } from './routes/truth-hub'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as AboutRouteImport } from './routes/about'
@@ -34,6 +35,11 @@ const SignupRoute = SignupRouteImport.update({
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/home'
     | '/login'
+    | '/profile'
     | '/services'
     | '/signup'
     | '/truth-hub'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/home'
     | '/login'
+    | '/profile'
     | '/services'
     | '/signup'
     | '/truth-hub'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/home'
     | '/login'
+    | '/profile'
     | '/services'
     | '/signup'
     | '/truth-hub'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   ServicesRoute: typeof ServicesRoute
   SignupRoute: typeof SignupRoute
   TruthHubRoute: typeof TruthHubRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   ServicesRoute: ServicesRoute,
   SignupRoute: SignupRoute,
   TruthHubRoute: TruthHubRoute,
