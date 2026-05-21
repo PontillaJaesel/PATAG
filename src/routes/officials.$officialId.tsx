@@ -153,9 +153,16 @@ function OfficialProfile() {
             <div className="rounded-3xl bg-white p-5 shadow-card">
               <div className="font-display text-lg font-bold text-cocoa">Policies and Laws</div>
               <ul className="mt-3 space-y-2 text-sm font-medium">
-                {o.policies.map((p: string) => (
-                  <li key={p}>
-                    <a className="text-rust underline-offset-4 hover:underline cursor-pointer">{p}</a>
+                {o.policies.map((p: any) => (
+                  <li key={p.name}>
+                    <a 
+                      href={p.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-rust underline-offset-4 hover:underline cursor-pointer"
+                    >
+                      {p.name} ↗
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -224,7 +231,18 @@ function OfficialProfile() {
               </AccordionShell>
 
               <AccordionShell value="sources" title="Sources and References">
-                <p className="text-sm text-cocoa/80">{o.sources}</p>
+                {o.source_url ? (
+                  <a 
+                    href={o.source_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center gap-1 text-[15px] font-bold tracking-wider text-rust hover:underline underline-offset-4 cursor-pointer uppercase"
+                  >
+                    {o.source_text} ↗
+                  </a>
+                ) : (
+                  <span className="text-sm italic text-cocoa/60">No source provided</span>
+                )}
               </AccordionShell>
             </Accordion>
           </div>
@@ -251,8 +269,13 @@ function OfficialProfile() {
                       </span>
                     </div>
                     
-                    <a className="mt-3 flex items-center gap-1 text-[11px] font-bold tracking-wider text-rust hover:underline underline-offset-4 cursor-pointer">
-                      {p.link} ↗
+                    <a 
+                      href={p.link_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="mt-3 flex items-center gap-1 text-[11px] font-bold tracking-wider text-rust hover:underline underline-offset-4 cursor-pointer"
+                    >
+                      {p.link_text} ↗
                     </a>
                   </div>
                 ))}

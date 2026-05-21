@@ -33,6 +33,7 @@ type OfficialRecord = {
   location: string;
   bio: string;
   photo: string;
+  appointed_by: string; 
 };
 
 type DirectoryOfficialRecord = OfficialRecord & {
@@ -61,7 +62,7 @@ type AgencyRecord = {
 
 const getOfficialsList = createServerFn({ method: "GET" }).handler(async () => {
   const result = await db.execute(
-    "SELECT id, name, title, status, branch, location, bio FROM officials ORDER BY name ASC",
+    "SELECT id, name, title, status, branch, location, bio, appointed_by FROM officials ORDER BY name ASC",
   );
 
   const rows = result.rows as unknown as Array<Record<string, unknown>>;
@@ -72,10 +73,11 @@ const getOfficialsList = createServerFn({ method: "GET" }).handler(async () => {
       name: String(row.name ?? ""),
       title: String(row.title ?? ""),
         status: String(row.status ?? ""),
-      branch: String(row.branch ?? ""),
+      branch: String(row.branch ?? "").charAt(0).toUpperCase() + String(row.branch ?? "").slice(1).toLowerCase(),
       location: String(row.location ?? ""),
       bio: String(row.bio ?? ""),
       photo: String(row.photo ?? ""),
+      appointed_by: String(row.appointed_by ?? ""),
     }),
   );
 });
@@ -159,6 +161,7 @@ function OfficialsList() {
   const [sort, setSort] = useState<"relevance" | "az" | "za">("relevance");
   const [locationFilter, setLocationFilter] = useState<string>("All");
   const [selectedOfficialStatuses, setSelectedOfficialStatuses] = useState<string[]>([]);
+  const [selectedOfficialAppointments, setSelectedOfficialAppointments] = useState<string[]>([]);
   const [selectedOfficialBranches, setSelectedOfficialBranches] = useState<string[]>([]);
   const [selectedAgencyKinds, setSelectedAgencyKinds] = useState<string[]>([]);
 
@@ -261,7 +264,8 @@ function OfficialsList() {
   "Zamboanga Sibugay",
 ];
 
-  const officialStatusOptions = ["Active", "Former", "Appointed", "Elected"];
+  const officialStatusOptions = ["Active", "Former"];
+  const officialAppointmentOptions = ["Appointed", "Elected"];
   const officialBranchOptions = ["Executive", "Legislative", "Judicial"];
   const agencyKindOptions = ["Department", "Agency"];
 
@@ -292,12 +296,13 @@ function OfficialsList() {
       name: agency.secretary_name,
       title: agency.secretary_title,
       branch: "Executive",
-      location: "Manila",
+      location: agency.headquarters,
       bio: agency.secretary_bio,
       photo: getAgencySecretaryPhotoPath(agency.secretary_name) || agency.secretary_photo,
       status: "Active",
       source: "agency-secretary",
       agencyName: agency.name,
+      appointed_by: "Office of the President",
     }));
   }, [agencies]);
 
@@ -318,12 +323,24 @@ function OfficialsList() {
           .includes(locationFilter.toLowerCase());
       const matchesStatus =
         selectedOfficialStatuses.length === 0 || selectedOfficialStatuses.includes(official.status);
+      const matchesAppointment =
+        selectedOfficialAppointments.length === 0 ||
+        selectedOfficialAppointments.some((filter) => {
+          const appointedBy = (official.appointed_by ?? "").toLowerCase();
+          if (filter === "Elected") {
+            return appointedBy.includes("election");
+          }
+          if (filter === "Appointed") {
+            return appointedBy !== "" && !appointedBy.includes("election");
+          }
+          return false;
+        });
       const matchesBranch =
         selectedOfficialBranches.length === 0 || selectedOfficialBranches.includes(official.branch);
 
-      return matchesQ && matchesLocation && matchesStatus && matchesBranch;
+      return matchesQ && matchesLocation && matchesStatus && matchesBranch && matchesAppointment;
     });
-  }, [allOfficials, q, locationFilter, selectedOfficialStatuses, selectedOfficialBranches]);
+  }, [allOfficials, q, locationFilter, selectedOfficialStatuses, selectedOfficialBranches, selectedOfficialAppointments]);
 
   const filteredAgencies = useMemo(() => {
     return agencies.filter((agency: AgencyRecord) => {
@@ -434,6 +451,12 @@ function OfficialsList() {
                         options={officialStatusOptions}
                         selected={selectedOfficialStatuses}
                         onToggle={(value) => toggleSelection(value, setSelectedOfficialStatuses)}
+                      />
+                      <FilterGroup
+                        title="Appointment"
+                        options={officialAppointmentOptions}
+                        selected={selectedOfficialAppointments}
+                        onToggle={(value) => toggleSelection(value, setSelectedOfficialAppointments)}
                       />
                       <FilterGroup
                         title="Branch"
