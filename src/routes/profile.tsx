@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { getUser, setUser } from "@/lib/auth";
-import { useBookmarks, type BookmarkedAgency, type BookmarkedOfficial } from "@/lib/bookmarks";
+import { useBookmarks, type BookmarkedOfficial, type BookmarkedAgency, type BookmarkedBill } from "@/lib/bookmarks";
 import shield from "@/assets/patag-shield.png";
 import {
   User,
@@ -236,6 +236,9 @@ function ProfileTab({ user }: { user: any }) {
 function ActivityTab() {
   const trackedOfficials = useBookmarks<BookmarkedOfficial>("officials");
   const savedAgencies = useBookmarks<BookmarkedAgency>("agencies");
+  const savedBills = useBookmarks<BookmarkedBill>("bills");
+  console.log("savedBills from localStorage", savedBills);
+  console.log("raw localStorage value", localStorage.getItem("patag.bookmarks.bills"));
 
   return (
     <div className="space-y-6">
@@ -284,19 +287,22 @@ function ActivityTab() {
       <div className="rounded-3xl border border-tan/80 bg-white p-8 shadow-card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-display text-2xl text-cocoa">Saved Legislation</h2>
-          <span className="text-xs font-semibold text-copper">1 Saved</span>
+          <span className="text-xs font-semibold text-copper">{savedBills.length} Saved</span>
         </div>
-        <div className="grid gap-4">
-          <ActivityCard icon={<Bookmark className="h-5 w-5 text-copper" />} title="Senate Bill 1979" subtitle="Digital Governance Act • Pending Second Reading" />
-        </div>
-      </div>
-
-      <div className="rounded-3xl border border-tan/80 bg-white p-8 shadow-card">
-        <h2 className="font-display text-2xl text-cocoa mb-4">"Public Pulse" History</h2>
-        <div className="space-y-3">
-          <PulseItem icon={<ThumbsUp className="h-4 w-4 text-forest" />} action="Approved" target="Senate Bill 1979" date="2 days ago" />
-          <PulseItem icon={<ThumbsDown className="h-4 w-4 text-rust" />} action="Disapproved" target="COA Confidential Fund Resolution" date="1 week ago" />
-        </div>
+        {savedBills.length > 0 ? (
+          <div className="grid gap-4">
+            {savedBills.map((bill) => (
+              <ActivityCard
+                key={bill.id}
+                icon={<Bookmark className="h-5 w-5 text-copper" />}
+                title={bill.title}
+                subtitle={`${bill.number} • ${bill.category}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-coffee">No legislation bookmarked yet.</p>
+        )}
       </div>
     </div>
   );
