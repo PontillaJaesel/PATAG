@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 const BOOKMARKS_UPDATED_EVENT = "patag:bookmarks-updated";
 const OFFICIALS_BOOKMARK_KEY = "patag.bookmarks.officials";
 const AGENCIES_BOOKMARK_KEY = "patag.bookmarks.agencies";
+const BILLS_BOOKMARK_KEY = "patag.bookmarks.bills";
 
 export type BookmarkedOfficial = {
   id: number;
@@ -22,11 +23,20 @@ export type BookmarkedAgency = {
   description: string;
 };
 
-type BookmarkCollection = "officials" | "agencies";
+export type BookmarkedBill = {
+  id: string;
+  title: string;
+  number: string;
+  category: string;
+  stage: number;
+};
+
+type BookmarkCollection = "officials" | "agencies" | "bills";
 
 const collectionKeys: Record<BookmarkCollection, string> = {
   officials: OFFICIALS_BOOKMARK_KEY,
   agencies: AGENCIES_BOOKMARK_KEY,
+  bills: BILLS_BOOKMARK_KEY,
 };
 
 function readBookmarks<T>(key: string): T[] {
@@ -68,7 +78,7 @@ export function useBookmarks<T>(collection: BookmarkCollection) {
   return items;
 }
 
-export function useBookmarkToggle<T extends { id: number }>(
+export function useBookmarkToggle<T extends { id: number | string }>(
   collection: BookmarkCollection,
   item: T,
 ) {

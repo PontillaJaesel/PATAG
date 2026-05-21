@@ -4,6 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { ThumbsUp, ThumbsDown, Bookmark, ChevronDown, Check } from "lucide-react";
+import { useBookmarkToggle } from "@/lib/bookmarks";
 import heroImg from "@/assets/legislative-hero.png";
 import { stages } from "@/lib/mock-data"; 
 import { getUser } from "@/lib/auth";
@@ -118,7 +119,13 @@ function BillsList() {
                     ))}
                   </div>
                 </div>
-                <BillActionButtons billId={b.id} />
+                <BillActionButtons
+                  billId={b.id}
+                  title={b.title}
+                  number={b.number}
+                  category={b.category}
+                  stage={b.stage}
+                />
               </div>
             </Link>
           ))}
@@ -128,9 +135,23 @@ function BillsList() {
   );
 }
 
-function BillActionButtons({ billId }: { billId: string }) {
-  // Use our new shared hook!
-  const { vote, setVote, bookmarked, setBookmarked } = useBillActions(billId);
+function BillActionButtons({ billId, title, number, category, stage }: {
+  billId: string;
+  title: string;
+  number: string;
+  category: string;
+  stage: number;
+}) {
+  const { vote, setVote } = useBillActions(billId);
+
+  // ← use the same system as officials and agencies
+  const { bookmarked, toggle } = useBookmarkToggle("bills", {
+    id: billId,
+    title,
+    number,
+    category,
+    stage,
+  });
 
   const toggleVote = (e: React.MouseEvent, type: 'up' | 'down') => {
     e.preventDefault();
@@ -141,7 +162,7 @@ function BillActionButtons({ billId }: { billId: string }) {
   const toggleBookmark = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setBookmarked(!bookmarked);
+    toggle();
   };
 
   const baseClass = "grid h-10 w-10 place-items-center rounded-full border transition-all duration-200 hover:scale-105";
@@ -151,23 +172,18 @@ function BillActionButtons({ billId }: { billId: string }) {
     <div className="flex items-center gap-2">
       <button
         onClick={(e) => toggleVote(e, 'up')}
-        // Orange (copper) for upvote
         className={`${baseClass} ${vote === 'up' ? 'bg-copper border-transparent text-cream' : defaultClass}`}
       >
         <ThumbsUp className="h-4 w-4" />
       </button>
-      
       <button
         onClick={(e) => toggleVote(e, 'down')}
-        // Orange (copper) for downvote
         className={`${baseClass} ${vote === 'down' ? 'bg-copper border-transparent text-cream' : defaultClass}`}
       >
         <ThumbsDown className="h-4 w-4" />
       </button>
-      
       <button
         onClick={toggleBookmark}
-        // Green (forest) for bookmark
         className={`${baseClass} ${bookmarked ? 'bg-forest border-transparent text-cream' : defaultClass}`}
       >
         <Bookmark className="h-4 w-4" />
