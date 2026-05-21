@@ -13,132 +13,100 @@ export const Route = createFileRoute("/signup")({
 type Step = 1 | 2 | 3;
 type Role = "citizen" | "researcher" | "journalist";
 
+// --- GLOBAL STATIC CONFIG DATA ---
+const industries = [
+  "Education", "Healthcare", "Government", "IT / Technology",
+  "Business / Finance", "Agriculture", "Transportation",
+  "Manufacturing", "Unemployed", "Retired", "Student", "Others"
+];
+
+const voterTypes = [
+  "Regular Voter", "SK Voter", "First-time Voter",
+  "Overseas Voter", "Senior Citizen", "PWD", "Not a Voter"
+];
+
+const locationData: Record<string, string[]> = {
+  "Batangas": ["Batangas City", "Lipa City", "Tanauan City", "Santo Tomas", "Bauan", "San Pascual", "Lemery", "Nasugbu"],
+  "Cebu": ["Cebu City", "Lapu-Lapu City", "Mandaue City", "Talisay City", "Toledo City", "Bogo City", "Carcar City"],
+  "Metro Manila": ["Manila", "Quezon City", "Makati City", "Taguig City", "Pasig City", "Mandaluyong City", "Paranaque City", "Caloocan City", "Valenzuela City", "Muntinlupa City"],
+  "Cavite": ["Bacoor City", "Dasmarinas City", "Imus City", "Tagaytay City", "Trece Martires City", "General Trias City", "Carmona", "Silang", "Kawit"],
+  "Laguna": ["Calamba City", "Santa Rosa City", "Binan City", "San Pedro City", "Cabuyao City", "San Pablo City", "Los Banos", "Santa Cruz"],
+  "Rizal": ["Antipolo City", "Cainta", "Taytay", "San Mateo", "Rodriguez", "Binangonan", "Angono"],
+  "Bulacan": ["Malolos City", "Meycauayan City", "San Jose del Monte City", "Baliuag City", "Marilao", "Bocaue", "Santa Maria"],
+  "Pampanga": ["San Fernando City", "Angeles City", "Mabalacat City", "Guagua", "Lubao", "Porac", "Apalit"],
+  "Pangasinan": ["Dagupan City", "Urdaneta City", "Alaminos City", "San Carlos City", "Lingayen", "Calasiao", "Mangaldan"],
+  "Iloilo": ["Iloilo City", "Passi City", "Oton", "Pototan", "Pavia", "Santa Barbara", "Miagao"],
+  "Negros Occidental": ["Bacolod City", "Bago City", "Cadiz City", "Kabankalan City", "San Carlos City", "Silay City", "Talisay City"],
+  "Davao del Sur": ["Davao City", "Digos City", "Bansalan", "Hagonoy", "Malalag", "Matanao", "Santa Cruz"],
+  "Misamis Oriental": ["Cagayan de Oro City", "Gingoog City", "El Salvador City", "Tagoloan", "Villanueva", "Opol", "Balingasag"]
+};
+
+const provinces = Object.keys(locationData);
+
+// --- MAIN SIGNUP COMPONENT ---
 function Signup() {
   const [step, setStep] = useState<Step>(1);
   const [data, setData] = useState({ fullName: "", email: "", dob: "", password: "", confirm: "" });
   const [role, setRole] = useState<Role>("citizen");
 
-  // New States for validation and UX
   const [error, setError] = useState("");
   const [age, setAge] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Lifted form state inputs
   const [selectedIndustry, setSelectedIndustry] = useState('');
-
-  const industries = [
-    "Education",
-    "Healthcare",
-    "Government",
-    "IT / Technology",
-    "Business / Finance",
-    "Agriculture",
-    "Transportation",
-    "Manufacturing",
-    "Unemployed",
-    "Retired",
-    "Student",
-    "Others"
-  ];
-
-  const voterTypes = [
-    "Regular Voter",
-    "SK Voter",
-    "First-time Voter",
-    "Overseas Voter",
-    "Senior Citizen",
-    "PWD",
-    "Not a Voter"
-  ];
-
-  const locationData: Record<string, string[]> = {
-    "Batangas": [
-      "Batangas City", "Lipa City", "Tanauan City",
-      "Santo Tomas", "Bauan", "San Pascual", "Lemery", "Nasugbu"
-    ],
-    "Cebu": [
-      "Cebu City", "Lapu-Lapu City", "Mandaue City",
-      "Talisay City", "Toledo City", "Bogo City", "Carcar City"
-    ],
-    "Metro Manila": [
-      "Manila", "Quezon City", "Makati City",
-      "Taguig City", "Pasig City", "Mandaluyong City", "Paranaque City",
-      "Caloocan City", "Valenzuela City", "Muntinlupa City"
-    ],
-    "Cavite": [
-      "Bacoor City", "Dasmarinas City", "Imus City",
-      "Tagaytay City", "Trece Martires City", "General Trias City",
-      "Carmona", "Silang", "Kawit"
-    ],
-    "Laguna": [
-      "Calamba City", "Santa Rosa City", "Binan City",
-      "San Pedro City", "Cabuyao City", "San Pablo City",
-      "Los Banos", "Santa Cruz"
-    ],
-    "Rizal": [
-      "Antipolo City", "Cainta", "Taytay",
-      "San Mateo", "Rodriguez", "Binangonan", "Angono"
-    ],
-    "Bulacan": [
-      "Malolos City", "Meycauayan City", "San Jose del Monte City",
-      "Baliuag City", "Marilao", "Bocaue", "Santa Maria"
-    ],
-    "Pampanga": [
-      "San Fernando City", "Angeles City", "Mabalacat City",
-      "Guagua", "Lubao", "Porac", "Apalit"
-    ],
-    "Pangasinan": [
-      "Dagupan City", "Urdaneta City", "Alaminos City",
-      "San Carlos City", "Lingayen", "Calasiao", "Mangaldan"
-    ],
-    "Iloilo": [
-      "Iloilo City", "Passi City", "Oton",
-      "Pototan", "Pavia", "Santa Barbara", "Miagao"
-    ],
-    "Negros Occidental": [
-      "Bacolod City", "Bago City", "Cadiz City",
-      "Kabankalan City", "San Carlos City", "Silay City", "Talisay City"
-    ],
-    "Davao del Sur": [
-      "Davao City", "Digos City", "Bansalan",
-      "Hagonoy", "Malalag", "Matanao", "Santa Cruz"
-    ],
-    "Misamis Oriental": [
-      "Cagayan de Oro City", "Gingoog City", "El Salvador City",
-      "Tagoloan", "Villanueva", "Opol", "Balingasag"
-    ]
-  };
-
-  const provinces = Object.keys(locationData);
-
   const [specificWork, setSpecificWork] = useState('');
   const [voterType, setVoterType] = useState('');
+  const [city, setCity] = useState("");
+  const [province, setProvince] = useState("");
+  const [idFile, setIdFile] = useState<File | null>(null);
+
   const navigate = useNavigate();
 
-  // Smart Birthday Formatter
   const handleDobChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/\D/g, "");
-
     if (val.length >= 2) {
       const month = parseInt(val.substring(0, 2));
       if (month > 12) val = "12" + val.substring(2);
       if (month === 0) val = "01" + val.substring(2);
     }
-
     if (val.length >= 4) {
       const day = parseInt(val.substring(2, 4));
       if (day > 31) val = val.substring(0, 2) + "31" + val.substring(4);
       if (day === 0) val = val.substring(0, 2) + "01" + val.substring(4);
     }
-
     let formatted = val;
     if (val.length > 4) {
       formatted = `${val.substring(0, 2)}/${val.substring(2, 4)}/${val.substring(4, 8)}`;
     } else if (val.length > 2) {
       formatted = `${val.substring(0, 2)}/${val.substring(2)}`;
     }
-
     setData({ ...data, dob: formatted });
   };
+
+  async function finish(extra: Record<string, any>) {
+    try {
+      await registerUser({
+        data: {
+          fullName: data.fullName,
+          email: data.email,
+          password: data.password,
+          dob: data.dob,
+          role: role,
+          location: extra.city ?? "Philippines",
+          industry: extra.industry ?? "",
+          specificWork: extra.specificWork ?? "",
+          voterType: extra.voterType ?? "",
+          idFile: extra.idFile ?? null
+        }
+      });
+      navigate({ to: "/" });
+    } catch (error: any) {
+      alert(error.message);
+      setStep(1);
+    }
+  }
 
   return (
     <AuthShell>
@@ -151,31 +119,25 @@ function Signup() {
               e.preventDefault();
               setError("");
 
-              // 1. Password Match
               if (data.password !== data.confirm) {
                 setError("Passwords do not match.");
                 return;
               }
-
-              // 2. Complete Birthday
               if (data.dob.length < 10) {
                 setError("Please enter a complete birthday.");
                 return;
               }
 
-              // 3. Strict Age Calculation
               const [month, day, year] = data.dob.split("/").map(Number);
               const birthDate = new Date(year, month - 1, day);
-              const referenceDate = new Date(2026, 4, 21); // Base year 2026
+              const referenceDate = new Date(2026, 4, 21);
 
               let calculatedAge = referenceDate.getFullYear() - birthDate.getFullYear();
               const monthDiff = referenceDate.getMonth() - birthDate.getMonth();
-
               if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < birthDate.getDate())) {
                 calculatedAge--;
               }
 
-              // 4. Age Validations
               if (calculatedAge < 7) {
                 setError("You must be at least 7 years old to create a PATAG account.");
                 return;
@@ -186,12 +148,7 @@ function Signup() {
               }
 
               setAge(calculatedAge);
-
-              // 5. Auto-route young users
-              if (calculatedAge < 14) {
-                setRole("researcher");
-              }
-
+              if (calculatedAge < 14) setRole("researcher");
               setStep(2);
             }}
           >
@@ -207,7 +164,7 @@ function Signup() {
 
             <Field
               icon={
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="hover:text-cream transition-colors focus:outline-none" aria-label={showPassword ? "Hide password" : "Show password"}>
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="hover:text-cream transition-colors focus:outline-none">
                   {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </button>
               }
@@ -217,7 +174,7 @@ function Signup() {
 
             <Field
               icon={
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="hover:text-cream transition-colors focus:outline-none" aria-label={showConfirmPassword ? "Hide password" : "Show password"}>
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="hover:text-cream transition-colors focus:outline-none">
                   {showConfirmPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </button>
               }
@@ -225,11 +182,7 @@ function Signup() {
               <input required type={showConfirmPassword ? "text" : "password"} value={data.confirm} onChange={(e) => setData({ ...data, confirm: e.target.value })} placeholder="Confirm Password" className="auth-input" />
             </Field>
 
-            {error && (
-              <div className="rounded-lg bg-red-500/10 p-3 text-center text-xs font-medium text-red-400 border border-red-500/20">
-                {error}
-              </div>
-            )}
+            {error && <div className="rounded-lg bg-red-500/10 p-3 text-center text-xs font-medium text-red-400 border border-red-500/20">{error}</div>}
 
             <button className="w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Continue &rarr;</button>
             <p className="text-center text-xs text-cream/80">Already have an account?{" "}
@@ -284,248 +237,202 @@ function Signup() {
       {step === 3 && (
         <Card className="max-w-xl">
           <button onClick={() => setStep(2)} className="rounded-full bg-onyx/80 px-3 py-1 text-xs font-bold text-cream">BACK</button>
-          {role === "citizen" && <CitizenForm onSubmit={finish} />}
-          {role === "researcher" && <ResearcherForm onSubmit={finish} />}
-          {role === "journalist" && <JournalistForm onSubmit={finish} />}
+
+          {role === "citizen" && (
+            <CitizenForm
+              selectedIndustry={selectedIndustry} setSelectedIndustry={setSelectedIndustry}
+              specificWork={specificWork} setSpecificWork={setSpecificWork}
+              province={province} setProvince={setProvince}
+              city={city} setCity={setCity}
+              voterType={voterType} setVoterType={setVoterType}
+              idFile={idFile} setIdFile={setIdFile}
+              onSubmit={finish}
+            />
+          )}
+
+          {role === "researcher" && (
+            <ResearcherForm city={city} setCity={setCity} idFile={idFile} setIdFile={setIdFile} onSubmit={finish} />
+          )}
+
+          {role === "journalist" && (
+            <JournalistForm city={city} setCity={setCity} idFile={idFile} setIdFile={setIdFile} onSubmit={finish} />
+          )}
+
           <p className="mt-4 text-center text-xs text-cream/80">Already have an account? <Link to="/login" className="text-copper font-semibold hover:underline">Login</Link></p>
         </Card>
       )}
     </AuthShell>
   );
+}
 
-  async function finish(extra: Record<string, any>) {
-    try {
-      await registerUser({
-        data: {
-          fullName: data.fullName,
-          email: data.email,
-          password: data.password,
-          dob: data.dob,
-          role: role,
-          location: extra.city ?? "Philippines",
-          industry: extra.industry ?? "",
-          specificWork: extra.specificWork ?? "",
-          voterType: extra.voterType ?? "",
-          idFile: extra.idFile ?? null
-        }
-      });
+// --- SUB-FORMS: MOVED OUTSIDE MAIN COMPONENT TO ELIMINATE RE-CREATION REMOUNT FOCUS DROP BUGS ---
 
-      // Updated to point directly to your new landing page!
-      navigate({ to: "/" });
+interface CitizenFormProps {
+  selectedIndustry: string; setSelectedIndustry: (v: string) => void;
+  specificWork: string; setSpecificWork: (v: string) => void;
+  province: string; setProvince: (v: string) => void;
+  city: string; setCity: (v: string) => void;
+  voterType: string; setVoterType: (v: string) => void;
+  idFile: File | null; setIdFile: (f: File | null) => void;
+  onSubmit: (x: Record<string, any>) => void;
+}
 
-    } catch (error: any) {
-      alert(error.message);
-      setStep(1);
-    }
-  }
+function CitizenForm({
+  selectedIndustry, setSelectedIndustry,
+  specificWork, setSpecificWork,
+  province, setProvince,
+  city, setCity,
+  voterType, setVoterType,
+  idFile, setIdFile,
+  onSubmit
+}: CitizenFormProps) {
+  return (
+    <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      onSubmit({ city, province, industry: selectedIndustry, specificWork, voterType, idFile });
+    }} className="mt-4">
+      <h1 className="font-display text-3xl text-cream">Tell us about you</h1>
+      <p className="mt-1 text-sm text-cream/70">Helps us surface data relevant to your community and sector.</p>
 
-  function CitizenForm({ onSubmit }: { onSubmit: (x: Record<string, any>) => void }) {
-    const [city, setCity] = useState("");
-    const [province, setProvince] = useState("");
-    const [idFile, setIdFile] = useState<File | null>(null);
+      <div className="mt-5 space-y-4">
+        <Labeled label="Occupational Industry">
+          <select className="auth-select" value={selectedIndustry} onChange={(e) => setSelectedIndustry(e.target.value)} required>
+            <option value="" disabled>Select industry</option>
+            {industries.map((ind) => <option key={ind} value={ind}>{ind}</option>)}
+          </select>
+        </Labeled>
 
-    return (
-      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        onSubmit({ city, province, industry: selectedIndustry, specificWork, voterType, idFile });
-      }} className="mt-4">
-        <h1 className="font-display text-3xl text-cream">Tell us about you</h1>
-        <p className="mt-1 text-sm text-cream/70">Helps us surface data relevant to your community and sector.</p>
+        <div className={selectedIndustry ? "block animate-in fade-in duration-200" : "hidden"}>
+          <Labeled label={selectedIndustry === "Others" ? "Specify Industry" : "Specific Work / Position"}>
+            <input
+              type="text"
+              required={selectedIndustry !== ""}
+              value={specificWork}
+              onChange={(e) => setSpecificWork(e.target.value)}
+              placeholder={selectedIndustry === "Others" ? "Please specify your industry/work" : "e.g. Teacher, Nurse, Software Developer"}
+              className="auth-input border-b border-white/20 pb-2 w-full text-cream bg-transparent outline-none placeholder:text-cream/30"
+            />
+          </Labeled>
+        </div>
 
-        <div className="mt-5 space-y-4">
-          <Labeled label="Occupational Industry">
-            <select
-              className="auth-select"
-              value={selectedIndustry}
-              onChange={(e) => setSelectedIndustry(e.target.value)}
-              required
-            >
-              <option value="" disabled>Select industry</option>
-              {industries.map((industry) => (
-                <option key={industry} value={industry}>
-                  {industry}
-                </option>
-              ))}
+        <div className="grid grid-cols-2 gap-3">
+          <Labeled label="Province">
+            <select className="auth-select" value={province} onChange={(e) => { setProvince(e.target.value); setCity(""); }} required>
+              <option value="" disabled>Select province</option>
+              {provinces.map(prov => <option key={prov} value={prov}>{prov}</option>)}
             </select>
           </Labeled>
 
-          {selectedIndustry && (
-            <Labeled label={selectedIndustry === "Others" ? "Specify Industry" : "Specific Work / Position"}>
-              <input
-                type="text"
-                required
-                value={specificWork}
-                onChange={(e) => setSpecificWork(e.target.value)}
-                placeholder={
-                  selectedIndustry === "Others"
-                    ? "Please specify your industry/work"
-                    : "e.g. Teacher, Nurse, Software Developer"
-                }
-                className="auth-input border-b border-white/20 pb-2 w-full"
-              />
-            </Labeled>
-          )}
-
-          <div className="grid grid-cols-2 gap-3">
-            <Labeled label="Province">
-              <select
-                className="auth-select"
-                value={province}
-                onChange={(e) => {
-                  setProvince(e.target.value);
-                  setCity(""); // <--- CRITICAL: Reset city when province changes!
-                }}
-                required
-              >
-                <option value="" disabled>Select province</option>
-                {provinces.map(prov => (
-                  <option key={prov} value={prov}>{prov}</option>
-                ))}
+          <Labeled label="City / Municipality">
+            <div className="flex items-center gap-2 border-b border-white/20 pb-2">
+              <MapPin className="h-4 w-4 text-cream/60" />
+              <select className="w-full bg-transparent text-cream focus:outline-none appearance-none" value={city} onChange={(e) => setCity(e.target.value)} required disabled={!province}>
+                <option value="" disabled className="bg-onyx text-cream/40">{province ? "Select city" : "Select province first"}</option>
+                {province && locationData[province].map(c => <option key={c} value={c} className="bg-onyx text-cream">{c}</option>)}
               </select>
-            </Labeled>
-
-            <Labeled label="City / Municipality">
-              <div className="flex items-center gap-2 border-b border-white/20 pb-2">
-                <MapPin className="h-4 w-4 text-cream/60" />
-
-                <select
-                  className="w-full bg-transparent text-cream focus:outline-none appearance-none"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  required
-                  disabled={!province}
-                >
-                  <option value="" disabled>
-                    {province ? "Select city" : "Select province first"}
-                  </option>
-                  {province && locationData[province].map(c => (
-                    <option key={c} value={c} className="bg-onyx text-cream">
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </Labeled>
-          </div>
-
-          <Labeled label="Voter Type">
-            <select
-              className="auth-select"
-              value={voterType}
-              onChange={(e) => setVoterType(e.target.value)}
-              required
-            >
-              <option value="" disabled>Select voter type</option>
-              {voterTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </Labeled>
-
-          {voterType && voterType !== "Not a Voter" && (
-            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-              <Labeled label="Upload Voter's ID or Registration (Optional)">
-                <UploadBox
-                  photo={idFile}
-                  onPhotoChange={setIdFile}
-                />
-              </Labeled>
-              <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
-                Optional: Once reviewed by a PATAG admin, you will receive a Verified Voter badge on your profile. You can skip this and upload it later.
-              </div>
             </div>
-          )}
-
-          <label className="flex items-start gap-2 text-xs text-cream/80">
-            <input required type="checkbox" className="mt-0.5 accent-copper" />
-            <span>I agree to the <a className="text-copper underline cursor-pointer">Terms of Service</a> and <a className="text-copper underline cursor-pointer">Privacy Policy</a></span>
-          </label>
+          </Labeled>
         </div>
-        <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
-      </form>
-    );
-  }
 
-  function ResearcherForm({ onSubmit }: { onSubmit: (x: Record<string, any>) => void }) {
-    const [instName, setInstName] = useState("");
-    const [idFile, setIdFile] = useState<File | null>(null);
+        <Labeled label="Voter Type">
+          <select className="auth-select" value={voterType} onChange={(e) => setVoterType(e.target.value)} required>
+            <option value="" disabled>Select voter type</option>
+            {voterTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+          </select>
+        </Labeled>
 
-    return (
-      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city: instName, idFile }); }} className="mt-4">
-        <h1 className="font-display text-3xl text-cream">Research Details</h1>
-        <p className="mt-1 text-sm text-cream/70">Tell us where you study or work to tailor your data access.</p>
-        <div className="mt-5 space-y-4">
-          <Labeled label="Organization Type">
-            <select className="auth-select" required>
-              <option value="" disabled>Select organization type</option>
-              <option value="High School">High School / K-12</option>
-              <option value="University">University / College</option>
-              <option value="Think Tank">Think Tank</option>
-              <option value="NGO">NGO</option>
-            </select>
-          </Labeled>
-          <Labeled label="Institution or Organization Name">
-            <input required value={instName} onChange={(e) => setInstName(e.target.value)} className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. BatStateU Alangilan" />
-          </Labeled>
+        {voterType && voterType !== "Not a Voter" && (
           <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-            <Labeled label="Upload Student or Institutional ID (Optional)">
+            <Labeled label="Upload Voter's ID or Registration (Optional)">
               <UploadBox photo={idFile} onPhotoChange={setIdFile} />
             </Labeled>
             <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
-              Optional: Uploading a valid ID places your account in queue for a Verified Researcher badge, unlocking advanced data export tools after admin review.
+              Optional: Once reviewed by a PATAG admin, you will receive a Verified Voter badge on your profile. You can skip this and upload it later.
             </div>
           </div>
-          <label className="flex items-start gap-2 text-xs text-cream/80">
-            <input required type="checkbox" className="mt-0.5 accent-copper" />
-            <span>I agree to the <a className="text-copper underline cursor-pointer">Terms</a> and <a className="text-copper underline cursor-pointer">Privacy Policy</a></span>
-          </label>
-        </div>
-        <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
-      </form>
-    );
-  }
+        )}
 
-  function JournalistForm({ onSubmit }: { onSubmit: (x: Record<string, any>) => void }) {
-    const [pubName, setPubName] = useState("");
-    const [idFile, setIdFile] = useState<File | null>(null);
-
-    return (
-      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city: pubName, idFile }); }} className="mt-4">
-        <h1 className="font-display text-3xl text-cream">Verify your Credentials</h1>
-        <p className="mt-1 text-sm text-cream/70">Connect your publication to access raw datasets and PR contacts.</p>
-        <div className="mt-5 space-y-4">
-          <Labeled label="Institution / Publication Name">
-            <input required value={pubName} onChange={(e) => setPubName(e.target.value)} className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. Philippine Daily Inquirer" />
-          </Labeled>
-          <Labeled label="Author portfolio or professional profile">
-            <input required type="url" className="auth-input border-b border-white/20 pb-2 w-full" placeholder="https://" />
-          </Labeled>
-          <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-            <Labeled label="Upload Professional or Press ID (Optional)">
-              <UploadBox photo={idFile} onPhotoChange={setIdFile} />
-            </Labeled>
-            <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
-              Optional: Press accounts require human verification. You can create your account now and upload your credentials later to unlock full media access.
-            </div>
-          </div>
-          <label className="flex items-start gap-2 text-xs text-cream/80">
-            <input required type="checkbox" className="mt-0.5 accent-copper" />
-            <span>I agree to the <a className="text-copper underline cursor-pointer">Terms</a> and <a className="text-copper underline cursor-pointer">Privacy Policy</a></span>
-          </label>
-        </div>
-        <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
-      </form>
-    );
-  }
-
-  function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-      <div>
-        <div className="mb-1 text-xs text-cream/70">{label}</div>
-        {children}
+        <label className="flex items-start gap-2 text-xs text-cream/80">
+          <input required type="checkbox" className="mt-0.5 accent-copper" />
+          <span>I agree to the <a className="text-copper underline cursor-pointer">Terms of Service</a> and <a className="text-copper underline cursor-pointer">Privacy Policy</a></span>
+        </label>
       </div>
-    );
-  }
+      <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
+    </form>
+  );
+}
+
+function ResearcherForm({ city, setCity, idFile, setIdFile, onSubmit }: { city: string; setCity: (v: string) => void; idFile: File | null; setIdFile: (f: File | null) => void; onSubmit: (x: Record<string, any>) => void }) {
+  return (
+    <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city, idFile }); }} className="mt-4">
+      <h1 className="font-display text-3xl text-cream">Research Details</h1>
+      <p className="mt-1 text-sm text-cream/70">Tell us where you study or work to tailor your data access.</p>
+      <div className="mt-5 space-y-4">
+        <Labeled label="Organization Type">
+          <select className="auth-select" required>
+            <option value="" disabled>Select organization type</option>
+            <option value="High School">High School / K-12</option>
+            <option value="University">University / College</option>
+            <option value="Think Tank">Think Tank</option>
+            <option value="NGO">NGO</option>
+          </select>
+        </Labeled>
+        <Labeled label="Institution or Organization Name">
+          <input required value={city} onChange={(e) => setCity(e.target.value)} className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. BatStateU Alangilan" />
+        </Labeled>
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          <Labeled label="Upload Student or Institutional ID (Optional)">
+            <UploadBox photo={idFile} onPhotoChange={setIdFile} />
+          </Labeled>
+          <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
+            Optional: Uploading a valid ID places your account in queue for a Verified Researcher badge, unlocking advanced data export tools after admin review.
+          </div>
+        </div>
+        <label className="flex items-start gap-2 text-xs text-cream/80">
+          <input required type="checkbox" className="mt-0.5 accent-copper" />
+          <span>I agree to the <a className="text-copper underline cursor-pointer">Terms</a> and <a className="text-copper underline cursor-pointer">Privacy Policy</a></span>
+        </label>
+      </div>
+      <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
+    </form>
+  );
+}
+
+function JournalistForm({ city, setCity, idFile, setIdFile, onSubmit }: { city: string; setCity: (v: string) => void; idFile: File | null; setIdFile: (f: File | null) => void; onSubmit: (x: Record<string, any>) => void }) {
+  return (
+    <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city, idFile }); }} className="mt-4">
+      <h1 className="font-display text-3xl text-cream">Verify your Credentials</h1>
+      <p className="mt-1 text-sm text-cream/70">Connect your publication to access raw datasets and PR contacts.</p>
+      <div className="mt-5 space-y-4">
+        <Labeled label="Institution / Publication Name">
+          <input required value={city} onChange={(e) => setCity(e.target.value)} className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. Philippine Daily Inquirer" />
+        </Labeled>
+        <Labeled label="Author portfolio or professional profile">
+          <input required type="url" className="auth-input border-b border-white/20 pb-2 w-full" placeholder="https://" />
+        </Labeled>
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          <Labeled label="Upload Professional or Press ID (Optional)">
+            <UploadBox photo={idFile} onPhotoChange={setIdFile} />
+          </Labeled>
+          <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
+            Optional: Press accounts require human verification. You can create your account now and upload your credentials later to unlock full media access.
+          </div>
+        </div>
+        <label className="flex items-start gap-2 text-xs text-cream/80">
+          <input required type="checkbox" className="mt-0.5 accent-copper" />
+          <span>I agree to the <a className="text-copper underline cursor-pointer">Terms</a> and <a className="text-copper underline cursor-pointer">Privacy Policy</a></span>
+        </label>
+      </div>
+      <button className="mt-6 w-full rounded-full bg-onyx py-3 font-semibold text-cream hover:bg-black transition">Create account</button>
+    </form>
+  );
+}
+
+function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-1 text-xs text-cream/70">{label}</div>
+      {children}
+    </div>
+  );
 }

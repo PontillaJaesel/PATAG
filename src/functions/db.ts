@@ -10,6 +10,7 @@ db.run(`
     fullName TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
+    dob TEXT,                                 -- ◄ ADDED THIS LINE HERE!
     
     -- Role & Verification
     role TEXT DEFAULT 'citizen',             
