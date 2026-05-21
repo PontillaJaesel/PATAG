@@ -12,14 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TruthHubRouteImport } from './routes/truth-hub'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as HomeRouteImport } from './routes/home'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OfficialsIndexRouteImport } from './routes/officials.index'
 import { Route as BillsIndexRouteImport } from './routes/bills.index'
 import { Route as OfficialsOfficialIdRouteImport } from './routes/officials.$officialId'
 import { Route as BillsBillIdRouteImport } from './routes/bills.$billId'
+import { Route as OfficialsAgenciesAgencyIdRouteImport } from './routes/officials.agencies.$agencyId'
 
 const TruthHubRoute = TruthHubRouteImport.update({
   id: '/truth-hub',
@@ -36,14 +38,19 @@ const ServicesRoute = ServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -76,12 +83,19 @@ const BillsBillIdRoute = BillsBillIdRouteImport.update({
   path: '/bills/$billId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OfficialsAgenciesAgencyIdRoute =
+  OfficialsAgenciesAgencyIdRouteImport.update({
+    id: '/officials/agencies/$agencyId',
+    path: '/officials/agencies/$agencyId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/home': typeof HomeRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
@@ -89,12 +103,14 @@ export interface FileRoutesByFullPath {
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills/': typeof BillsIndexRoute
   '/officials/': typeof OfficialsIndexRoute
+  '/officials/agencies/$agencyId': typeof OfficialsAgenciesAgencyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/home': typeof HomeRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
@@ -102,13 +118,15 @@ export interface FileRoutesByTo {
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills': typeof BillsIndexRoute
   '/officials': typeof OfficialsIndexRoute
+  '/officials/agencies/$agencyId': typeof OfficialsAgenciesAgencyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/home': typeof HomeRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/services': typeof ServicesRoute
   '/signup': typeof SignupRoute
   '/truth-hub': typeof TruthHubRoute
@@ -116,14 +134,16 @@ export interface FileRoutesById {
   '/officials/$officialId': typeof OfficialsOfficialIdRoute
   '/bills/': typeof BillsIndexRoute
   '/officials/': typeof OfficialsIndexRoute
+  '/officials/agencies/$agencyId': typeof OfficialsAgenciesAgencyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
-    | '/home'
+    | '/admin'
     | '/login'
+    | '/profile'
     | '/services'
     | '/signup'
     | '/truth-hub'
@@ -131,12 +151,14 @@ export interface FileRouteTypes {
     | '/officials/$officialId'
     | '/bills/'
     | '/officials/'
+    | '/officials/agencies/$agencyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/home'
+    | '/admin'
     | '/login'
+    | '/profile'
     | '/services'
     | '/signup'
     | '/truth-hub'
@@ -144,12 +166,14 @@ export interface FileRouteTypes {
     | '/officials/$officialId'
     | '/bills'
     | '/officials'
+    | '/officials/agencies/$agencyId'
   id:
     | '__root__'
     | '/'
     | '/about'
-    | '/home'
+    | '/admin'
     | '/login'
+    | '/profile'
     | '/services'
     | '/signup'
     | '/truth-hub'
@@ -157,13 +181,15 @@ export interface FileRouteTypes {
     | '/officials/$officialId'
     | '/bills/'
     | '/officials/'
+    | '/officials/agencies/$agencyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  HomeRoute: typeof HomeRoute
+  AdminRoute: typeof AdminRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   ServicesRoute: typeof ServicesRoute
   SignupRoute: typeof SignupRoute
   TruthHubRoute: typeof TruthHubRoute
@@ -171,6 +197,7 @@ export interface RootRouteChildren {
   OfficialsOfficialIdRoute: typeof OfficialsOfficialIdRoute
   BillsIndexRoute: typeof BillsIndexRoute
   OfficialsIndexRoute: typeof OfficialsIndexRoute
+  OfficialsAgenciesAgencyIdRoute: typeof OfficialsAgenciesAgencyIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -196,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -203,11 +237,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -252,14 +286,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillsBillIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/officials/agencies/$agencyId': {
+      id: '/officials/agencies/$agencyId'
+      path: '/officials/agencies/$agencyId'
+      fullPath: '/officials/agencies/$agencyId'
+      preLoaderRoute: typeof OfficialsAgenciesAgencyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  HomeRoute: HomeRoute,
+  AdminRoute: AdminRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   ServicesRoute: ServicesRoute,
   SignupRoute: SignupRoute,
   TruthHubRoute: TruthHubRoute,
@@ -267,6 +309,7 @@ const rootRouteChildren: RootRouteChildren = {
   OfficialsOfficialIdRoute: OfficialsOfficialIdRoute,
   BillsIndexRoute: BillsIndexRoute,
   OfficialsIndexRoute: OfficialsIndexRoute,
+  OfficialsAgenciesAgencyIdRoute: OfficialsAgenciesAgencyIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
