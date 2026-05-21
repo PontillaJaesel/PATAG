@@ -235,7 +235,7 @@ const officialsToInsert = [
   },
   {
     name: "Alan Peter Cayetano",
-    photo: "/officials/acayetano.png",
+    photo: "public/officials/acayetano.png",
     title: "Senator",
     department: "Legislative",
     date_assumed: "June 2022",
@@ -803,7 +803,7 @@ async function seedOfficials() {
   `);
 
   console.log(`Inserting ${officialsToInsert.length} senators into the database...`);
-  
+
   for (const o of officialsToInsert) {
     await db.execute({
       sql: `

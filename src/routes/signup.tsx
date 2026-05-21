@@ -1,10 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthShell, Card, Field } from "./login";
-import { User, Mail, Calendar, Eye, EyeOff, Users, GraduationCap, Newspaper, Check, MapPin, Upload } from "lucide-react";
-import { setUser } from "@/lib/auth";
+import { User, Mail, Calendar, Eye, EyeOff, Users, GraduationCap, Newspaper, Check, MapPin } from "lucide-react";
 import { registerUser } from "../functions/action";
-import UploadBox from './UploadBox';
+import UploadBox from './-UploadBox';
 
 export const Route = createFileRoute("/signup")({
   head: () => ({ meta: [{ title: "Create account — P.A.T.A.G." }, { name: "description", content: "Join PATAG." }] }),
@@ -52,7 +51,6 @@ function Signup() {
   ];
 
   const locationData: Record<string, string[]> = {
-
     "Batangas": [
       "Batangas City", "Lipa City", "Tanauan City",
       "Santo Tomas", "Bauan", "San Pascual", "Lemery", "Nasugbu"
@@ -66,7 +64,6 @@ function Signup() {
       "Taguig City", "Pasig City", "Mandaluyong City", "Paranaque City",
       "Caloocan City", "Valenzuela City", "Muntinlupa City"
     ],
-
     "Cavite": [
       "Bacoor City", "Dasmarinas City", "Imus City",
       "Tagaytay City", "Trece Martires City", "General Trias City",
@@ -308,11 +305,13 @@ function Signup() {
           location: extra.city ?? "Philippines",
           industry: extra.industry ?? "",
           specificWork: extra.specificWork ?? "",
-          voterType: extra.voterType ?? ""
+          voterType: extra.voterType ?? "",
+          idFile: extra.idFile ?? null
         }
       });
 
-      navigate({ to: "/home" });
+      // Updated to point directly to your new landing page!
+      navigate({ to: "/" });
 
     } catch (error: any) {
       alert(error.message);
@@ -389,19 +388,16 @@ function Signup() {
               <div className="flex items-center gap-2 border-b border-white/20 pb-2">
                 <MapPin className="h-4 w-4 text-cream/60" />
 
-                {/* Change from standard <input> to <select> */}
                 <select
                   className="w-full bg-transparent text-cream focus:outline-none appearance-none"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   required
-                  disabled={!province} // Disable until a province is chosen!
+                  disabled={!province}
                 >
                   <option value="" disabled>
                     {province ? "Select city" : "Select province first"}
                   </option>
-
-                  {/* Dynamically render cities based on the selected province */}
                   {province && locationData[province].map(c => (
                     <option key={c} value={c} className="bg-onyx text-cream">
                       {c}
@@ -431,10 +427,9 @@ function Signup() {
           {voterType && voterType !== "Not a Voter" && (
             <div className="animate-in fade-in slide-in-from-top-2 duration-300">
               <Labeled label="Upload Voter's ID or Registration (Optional)">
-                {/* Connect the state to the upgraded UploadBox */}
                 <UploadBox
-                  file={idFile}
-                  onChange={(e) => setIdFile(e.target.files?.[0] ?? null)}
+                  photo={idFile}
+                  onPhotoChange={setIdFile}
                 />
               </Labeled>
               <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
@@ -455,8 +450,10 @@ function Signup() {
 
   function ResearcherForm({ onSubmit }: { onSubmit: (x: Record<string, any>) => void }) {
     const [instName, setInstName] = useState("");
+    const [idFile, setIdFile] = useState<File | null>(null);
+
     return (
-      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city: instName }); }} className="mt-4">
+      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city: instName, idFile }); }} className="mt-4">
         <h1 className="font-display text-3xl text-cream">Research Details</h1>
         <p className="mt-1 text-sm text-cream/70">Tell us where you study or work to tailor your data access.</p>
         <div className="mt-5 space-y-4">
@@ -470,11 +467,11 @@ function Signup() {
             </select>
           </Labeled>
           <Labeled label="Institution or Organization Name">
-            <input required value={instName} onChange={(e) => setInstName(e.target.value)} className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. Batangas State University" />
+            <input required value={instName} onChange={(e) => setInstName(e.target.value)} className="auth-input border-b border-white/20 pb-2 w-full" placeholder="e.g. BatStateU Alangilan" />
           </Labeled>
           <div className="animate-in fade-in slide-in-from-top-2 duration-300">
             <Labeled label="Upload Student or Institutional ID (Optional)">
-              <UploadBox />
+              <UploadBox photo={idFile} onPhotoChange={setIdFile} />
             </Labeled>
             <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
               Optional: Uploading a valid ID places your account in queue for a Verified Researcher badge, unlocking advanced data export tools after admin review.
@@ -492,8 +489,10 @@ function Signup() {
 
   function JournalistForm({ onSubmit }: { onSubmit: (x: Record<string, any>) => void }) {
     const [pubName, setPubName] = useState("");
+    const [idFile, setIdFile] = useState<File | null>(null);
+
     return (
-      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city: pubName }); }} className="mt-4">
+      <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); onSubmit({ city: pubName, idFile }); }} className="mt-4">
         <h1 className="font-display text-3xl text-cream">Verify your Credentials</h1>
         <p className="mt-1 text-sm text-cream/70">Connect your publication to access raw datasets and PR contacts.</p>
         <div className="mt-5 space-y-4">
@@ -505,7 +504,7 @@ function Signup() {
           </Labeled>
           <div className="animate-in fade-in slide-in-from-top-2 duration-300">
             <Labeled label="Upload Professional or Press ID (Optional)">
-              <UploadBox />
+              <UploadBox photo={idFile} onPhotoChange={setIdFile} />
             </Labeled>
             <div className="mt-2 rounded-lg bg-white/5 p-3 text-xs text-cream/80 ring-1 ring-white/10">
               Optional: Press accounts require human verification. You can create your account now and upload your credentials later to unlock full media access.
@@ -521,33 +520,12 @@ function Signup() {
     );
   }
 
-  // --- Helper Components ---
-
   function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
     return (
       <div>
         <div className="mb-1 text-xs text-cream/70">{label}</div>
         {children}
       </div>
-    );
-  }
-
-  function UploadBox({ file, onChange }: { file?: File | null; onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
-    return (
-      <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-white/20 p-3 text-sm text-cream/80 hover:bg-white/5 transition">
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-copper/30 text-copper">
-          <Upload className="h-4 w-4" />
-        </span>
-        <span className="flex-1 min-w-0">
-          <span className="block font-medium text-cream truncate">
-            {file ? file.name : "Click to upload"}
-          </span>
-          <span className="block text-xs text-cream/60">
-            {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "JPG, PNG, or PDF · max 5 MB"}
-          </span>
-        </span>
-        <input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={onChange} />
-      </label>
     );
   }
 }
