@@ -364,8 +364,8 @@ function OfficialsList() {
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-          <aside className="relative">
-            <div className="space-y-5 lg:sticky lg:top-4">
+          <aside className="relative lg:self-start">
+                <div className="space-y-5 lg:sticky lg:top-4">
               <TrackerCard />
 
               {filtersOpen ? (

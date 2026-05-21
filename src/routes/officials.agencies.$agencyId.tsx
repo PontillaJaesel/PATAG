@@ -331,10 +331,10 @@ function AgencyDetailsPage() {
               <div className="inline-flex items-center gap-2 rounded-full bg-[#2D221C]/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#2D221C]">
                 <ShieldCheck className="h-3.5 w-3.5 text-[#2D221C]" /> Mandate Card
               </div>
-              <h2 className="mt-4 font-display text-xl font-bold text-stone-900">
+              <h2 className="mt-4 font-display text-2xl font-bold text-stone-900">
                 Institutional mandate and core scope
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-stone-600 font-normal">
+              <p className="mt-3 text-base leading-relaxed text-stone-600 font-normal">
                 {agency.mandate}
               </p>
             </div>
@@ -436,7 +436,7 @@ function AgencyDetailsPage() {
               <p className="mt-2 text-xs text-white/70 uppercase tracking-widest font-bold">Secretary</p>
             </div>
             
-            <div className="p-5 flex-1 flex flex-col justify-between space-y-5">
+            <div className="p-5 flex-1 flex flex-col justify-between gap-4">
               <div className="flex items-start gap-4">
                 <img
                   src={secretaryPhoto}
@@ -444,26 +444,26 @@ function AgencyDetailsPage() {
                   className="h-16 w-16 rounded-xl border border-stone-200 object-cover shadow-sm bg-stone-50 shrink-0"
                 />
                 <div className="min-w-0">
-                  <h3 className="font-display text-lg font-bold text-stone-900 leading-tight truncate">
+                  <h3 className="font-display text-xl font-bold text-stone-900 leading-tight truncate">
                     {agency.secretary_name}
                   </h3>
-                  <p className="mt-1 text-xs font-semibold text-[#7D3705] leading-normal">
+                  <p className="mt-1 text-sm font-semibold text-[#7D3705] leading-normal">
                     {agency.secretary_title}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-2 bg-stone-50 p-3.5 rounded-xl border border-stone-100">
+              <div className="space-y-4 bg-stone-50 p-4 rounded-xl border border-stone-100">
                 <InfoTile icon={<Calendar className="h-4 w-4" />} label="Date Assumed" value={formatDate(agency.secretary_assumed_date)} />
                 <InfoTile icon={<ShieldCheck className="h-4 w-4" />} label="Tenure Length" value={formatTenure(agency.secretary_assumed_date)} />
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                  <div className="text-xs font-bold uppercase tracking-wider text-stone-400">
                     Top Accomplishments
                   </div>
-                  <ul className="mt-2 space-y-1.5 text-xs text-stone-600">
+                  <ul className="mt-2 space-y-2 text-sm text-stone-600">
                     {agency.top_accomplishments?.map((item: string) => (
                       <li key={item} className="flex items-start gap-2">
                         <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#7D3705]" />
@@ -477,14 +477,14 @@ function AgencyDetailsPage() {
                 </div>
 
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                  <div className="text-xs font-bold uppercase tracking-wider text-stone-400">
                     Core Contributions
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {agency.core_contributions?.map((item: string) => (
                       <span
                         key={item}
-                        className="rounded-md border border-stone-200 bg-white px-2 py-0.5 text-[10px] font-medium text-stone-600 shadow-2xs"
+                        className="rounded-md border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-stone-600 shadow-2xs"
                       >
                         {item}
                       </span>
