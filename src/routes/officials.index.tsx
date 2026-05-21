@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useSearch } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { AppNav } from "@/components/AppNav";
@@ -33,7 +33,7 @@ type OfficialRecord = {
   location: string;
   bio: string;
   photo: string;
-  appointed_by: string; 
+  appointed_by: string;
 };
 
 type DirectoryOfficialRecord = OfficialRecord & {
@@ -72,7 +72,7 @@ const getOfficialsList = createServerFn({ method: "GET" }).handler(async () => {
       id: Number(row.id as number | string),
       name: String(row.name ?? ""),
       title: String(row.title ?? ""),
-        status: String(row.status ?? ""),
+      status: String(row.status ?? ""),
       branch: String(row.branch ?? "").charAt(0).toUpperCase() + String(row.branch ?? "").slice(1).toLowerCase(),
       location: String(row.location ?? ""),
       bio: String(row.bio ?? ""),
@@ -151,8 +151,14 @@ export const Route = createFileRoute("/officials/")({
 function OfficialsList() {
   const { officials, agencies } = Route.useLoaderData();
 
+  // Safely grab the global search context query parameter from the URL bar route tree
+  const searchParams = useSearch({ strict: false });
+
   const [tab, setTab] = useState<DirectoryTab>(() => readStoredTab());
-  const [q, setQ] = useState("");
+
+  // Upgraded state: Automatically pre-populates input using the URL parameter fallback to empty string
+  const [q, setQ] = useState(() => (searchParams as any).q || "");
+
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [page, setPage] = useState(() => readStoredNumber(DIRECTORY_PAGE_KEY, 1));
   const [agencyPage, setAgencyPage] = useState(() => readStoredNumber(DIRECTORY_AGENCY_PAGE_KEY, 1));
@@ -178,91 +184,21 @@ function OfficialsList() {
   }, [agencyPage]);
 
   const PROVINCES = [
-  "All",
-  "Manila",
-  "Abra",
-  "Agusan del Norte",
-  "Agusan del Sur",
-  "Aklan",
-  "Albay",
-  "Antique",
-  "Apayao",
-  "Aurora",
-  "Basilan",
-  "Bataan",
-  "Batanes",
-  "Batangas",
-  "Benguet",
-  "Biliran",
-  "Bohol",
-  "Bukidnon",
-  "Bulacan",
-  "Cagayan",
-  "Camarines Norte",
-  "Camarines Sur",
-  "Camiguin",
-  "Capiz",
-  "Catanduanes",
-  "Cavite",
-  "Cebu",
-  "Cotabato",
-  "Davao de Oro",
-  "Davao del Norte",
-  "Davao del Sur",
-  "Davao Occidental",
-  "Davao Oriental",
-  "Dinagat Islands",
-  "Eastern Samar",
-  "Guimaras",
-  "Ifugao",
-  "Ilocos Norte",
-  "Ilocos Sur",
-  "Iloilo",
-  "Isabela",
-  "Kalinga",
-  "La Union",
-  "Laguna",
-  "Lanao del Norte",
-  "Lanao del Sur",
-  "Leyte",
-  "Maguindanao del Norte",
-  "Maguindanao del Sur",
-  "Marinduque",
-  "Masbate",
-  "Misamis Occidental",
-  "Misamis Oriental",
-  "Mountain Province",
-  "Negros Occidental",
-  "Negros Oriental",
-  "Northern Samar",
-  "Nueva Ecija",
-  "Nueva Vizcaya",
-  "Occidental Mindoro",
-  "Oriental Mindoro",
-  "Palawan",
-  "Pampanga",
-  "Pangasinan",
-  "Quezon",
-  "Quirino",
-  "Rizal",
-  "Romblon",
-  "Samar",
-  "Sarangani",
-  "Siquijor",
-  "Sorsogon",
-  "South Cotabato",
-  "Southern Leyte",
-  "Sultan Kudarat",
-  "Sulu",
-  "Surigao del Norte",
-  "Surigao del Sur",
-  "Tarlac",
-  "Tawi-Tawi",
-  "Zambales",
-  "Zamboanga del Norte",
-  "Zamboanga del Sur",
-  "Zamboanga Sibugay",
-];
+    "All", "Manila", "Abra", "Agusan del Norte", "Agusan del Sur", "Aklan", "Albay",
+    "Antique", "Apayao", "Aurora", "Basilan", "Bataan", "Batanes", "Batangas",
+    "Benguet", "Biliran", "Bohol", "Bukidnon", "Bulacan", "Cagayan", "Camarines Norte",
+    "Camarines Sur", "Camiguin", "Capiz", "Catanduanes", "Cavite", "Cebu", "Cotabato",
+    "Davao de Oro", "Davao del Norte", "Davao del Sur", "Davao Occidental", "Davao Oriental",
+    "Dinagat Islands", "Eastern Samar", "Guimaras", "Ifugao", "Ilocos Norte", "Ilocos Sur",
+    "Iloilo", "Isabela", "Kalinga", "La Union", "Laguna", "Lanao del Norte", "Lanao del Sur",
+    "Leyte", "Maguindanao del Norte", "Maguindanao del Sur", "Marinduque", "Masbate",
+    "Misamis Occidental", "Misamis Oriental", "Mountain Province", "Negros Occidental",
+    "Negros Oriental", "Northern Samar", "Nueva Ecija", "Nueva Vizcaya", "Occidental Mindoro",
+    "Oriental Mindoro", "Palawan", "Pampanga", "Pangasinan", "Quezon", "Quirino", "Rizal",
+    "Romblon", "Samar", "Sarangani", "Siquijor", "Sorsogon", "South Cotabato", "Southern Leyte",
+    "Sultan Kudarat", "Sulu", "Surigao del Norte", "Surigao del Sur", "Tarlac", "Tawi-Tawi",
+    "Zambales", "Zamboanga del Norte", "Zamboanga del Sur", "Zamboanga Sibugay",
+  ];
 
   const officialStatusOptions = ["Active", "Former"];
   const officialAppointmentOptions = ["Appointed", "Elected"];
@@ -291,7 +227,7 @@ function OfficialsList() {
   };
 
   const agencySecretaryOfficials = useMemo<DirectoryOfficialRecord[]>(() => {
-    return agencies.map((agency) => ({
+    return agencies.map((agency: AgencyRecord): DirectoryOfficialRecord => ({
       id: -agency.id,
       name: agency.secretary_name,
       title: agency.secretary_title,
@@ -363,7 +299,7 @@ function OfficialsList() {
     const arr = [...filteredOfficials];
     if (sort === "az") return arr.sort((a, b) => a.name.localeCompare(b.name));
     if (sort === "za") return arr.sort((a, b) => b.name.localeCompare(a.name));
-    return arr; // relevance / default
+    return arr;
   }, [filteredOfficials, sort]);
 
   const sortedAgencies = useMemo(() => {
@@ -509,9 +445,8 @@ function OfficialsList() {
                       role="tab"
                       aria-selected={isIndividuals}
                       onClick={() => handleTabChange("individuals")}
-                      className={`relative z-10 rounded-full px-6 py-2.5 font-display text-sm font-semibold tracking-[0.08em] transition-colors duration-300 ${
-                        isIndividuals ? "text-cream" : "text-cocoa hover:text-rust"
-                      }`}
+                      className={`relative z-10 rounded-full px-6 py-2.5 font-display text-sm font-semibold tracking-[0.08em] transition-colors duration-300 ${isIndividuals ? "text-cream" : "text-cocoa hover:text-rust"
+                        }`}
                     >
                       Individuals
                     </button>
@@ -520,9 +455,8 @@ function OfficialsList() {
                       role="tab"
                       aria-selected={!isIndividuals}
                       onClick={() => handleTabChange("agencies")}
-                      className={`relative z-10 rounded-full px-6 py-2.5 font-display text-sm font-semibold tracking-[0.08em] transition-colors duration-300 ${
-                        !isIndividuals ? "text-cream" : "text-cocoa hover:text-rust"
-                      }`}
+                      className={`relative z-10 rounded-full px-6 py-2.5 font-display text-sm font-semibold tracking-[0.08em] transition-colors duration-300 ${!isIndividuals ? "text-cream" : "text-cocoa hover:text-rust"
+                        }`}
                     >
                       Agencies & Departments
                     </button>
@@ -656,6 +590,7 @@ function FilterGroup({
   );
 }
 
+// Keeping unchanged presentation logic sub-components intact
 function TrackerCard() {
   return (
     <div className="rounded-2xl bg-gradient-to-br from-cocoa to-coffee p-5 text-cream shadow-card">
@@ -699,11 +634,10 @@ function AgencyPreviewCard({ agency }: { agency: AgencyRecord }) {
           event.stopPropagation();
           toggle();
         }}
-        className={`absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border shadow-sm transition ${
-          bookmarked
-            ? "border-forest bg-forest text-cream"
-            : "border-white/70 bg-white text-cocoa hover:border-forest hover:text-forest"
-        }`}
+        className={`absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border shadow-sm transition ${bookmarked
+          ? "border-forest bg-forest text-cream"
+          : "border-white/70 bg-white text-cocoa hover:border-forest hover:text-forest"
+          }`}
       >
         {bookmarked ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
       </button>
@@ -781,11 +715,10 @@ function OfficialPreviewCard({ official }: { official: DirectoryOfficialRecord }
           event.stopPropagation();
           toggle();
         }}
-        className={`absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border shadow-sm transition ${
-          bookmarked
-            ? "border-forest bg-forest text-cream"
-            : "border-tan bg-white text-cocoa hover:border-forest hover:text-forest"
-        }`}
+        className={`absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border shadow-sm transition ${bookmarked
+          ? "border-forest bg-forest text-cream"
+          : "border-tan bg-white text-cocoa hover:border-forest hover:text-forest"
+          }`}
       >
         {bookmarked ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
       </button>
@@ -824,11 +757,10 @@ function OfficialPreviewCard({ official }: { official: DirectoryOfficialRecord }
               event.stopPropagation();
               incrementLike();
             }}
-            className={`inline-flex w-auto shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 ${
-              likes > 0
-                ? "border-forest bg-forest/15 text-forest"
-                : "border-tan bg-cream text-cocoa hover:border-forest hover:text-forest"
-            }`}
+            className={`inline-flex w-auto shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 ${likes > 0
+              ? "border-forest bg-forest/15 text-forest"
+              : "border-tan bg-cream text-cocoa hover:border-forest hover:text-forest"
+              }`}
             aria-label={`Like ${official.name}`}
           >
             <ThumbsUp className="h-3.5 w-3.5" />
@@ -841,11 +773,10 @@ function OfficialPreviewCard({ official }: { official: DirectoryOfficialRecord }
               event.stopPropagation();
               incrementDislike();
             }}
-            className={`inline-flex w-auto shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 ${
-              dislikes > 0
-                ? "border-rust bg-rust/15 text-rust"
-                : "border-tan bg-cream text-cocoa hover:border-rust hover:text-rust"
-            }`}
+            className={`inline-flex w-auto shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 ${dislikes > 0
+              ? "border-rust bg-rust/15 text-rust"
+              : "border-tan bg-cream text-cocoa hover:border-rust hover:text-rust"
+              }`}
             aria-label={`Dislike ${official.name}`}
           >
             <ThumbsDown className="h-3.5 w-3.5" />

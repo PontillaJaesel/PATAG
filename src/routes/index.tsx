@@ -4,6 +4,18 @@ import shield from "@/assets/patag-shield.png";
 import { ArrowRight, ArrowDown, Building2, Clock3, Gavel, Scale, Search, Shield, Users, ShieldCheck } from "lucide-react";
 import { getUser } from "@/lib/auth";
 import { AppNav } from "@/components/AppNav";
+import { db } from "@/db/index";
+
+// Data structure signatures for the pre-check engine lookup paths
+type OfficialRecord = {
+  id: number;
+  name: string;
+};
+
+type BillRecord = {
+  id: number;
+  title: string;
+};
 
 const FRONT_PAGE_HIGHLIGHTS = [
   {
@@ -12,7 +24,7 @@ const FRONT_PAGE_HIGHLIGHTS = [
     urgency: "Urgent budget watch",
     time: "Updated 28 mins ago",
     icon: <Shield className="h-5 w-5" />,
-    className: "from-[#8B4513] to-[#5C3A21]", 
+    className: "from-[#8B4513] to-[#5C3A21]",
   },
   {
     branch: "Legislative",
@@ -20,7 +32,7 @@ const FRONT_PAGE_HIGHLIGHTS = [
     urgency: "Highly debated",
     time: "Updated 43 mins ago",
     icon: <Scale className="h-5 w-5" />,
-    className: "from-[#4A3B32] to-[#1A1A1A]", 
+    className: "from-[#4A3B32] to-[#1A1A1A]",
   },
   {
     branch: "Judicial",
@@ -28,7 +40,7 @@ const FRONT_PAGE_HIGHLIGHTS = [
     urgency: "New ruling",
     time: "Updated 1 hr ago",
     icon: <Gavel className="h-5 w-5" />,
-    className: "from-[#6B5749] to-[#D2B48C]", 
+    className: "from-[#6B5749] to-[#D2B48C]",
   },
   {
     branch: "Constitutional Bodies",
@@ -36,11 +48,35 @@ const FRONT_PAGE_HIGHLIGHTS = [
     urgency: "Red flag",
     time: "Updated 1 hr ago",
     icon: <Building2 className="h-5 w-5" />,
-    className: "from-[#B89B72] to-[#6B5749]", 
+    className: "from-[#B89B72] to-[#6B5749]",
   },
 ] as const;
 
 export const Route = createFileRoute("/")({
+  // Pre-load officials and bills context right into the landing route context map
+  loader: async () => {
+    try {
+      const officialsRes = await db.execute("SELECT id, name FROM officials");
+      const billsRes = await db.execute("SELECT id, title FROM bills");
+
+      const officialsRows = officialsRes.rows as unknown as Array<Record<string, unknown>>;
+      const billsRows = billsRes.rows as unknown as Array<Record<string, unknown>>;
+
+      return {
+        loadedOfficials: officialsRows.map((row): OfficialRecord => ({
+          id: Number(row.id as number | string),
+          name: String(row.name ?? ""),
+        })),
+        loadedBills: billsRows.map((row): BillRecord => ({
+          id: Number(row.id as number | string),
+          title: String(row.title ?? ""),
+        })),
+      };
+    } catch (err) {
+      console.error("Context checking pipeline loader failed:", err);
+      return { loadedOfficials: [], loadedBills: [] };
+    }
+  },
   head: () => ({
     meta: [
       { title: "P.A.T.A.G. — Truth is a public utility" },
@@ -53,7 +89,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-            "Track legislative bills, budgets, and high-ranking politicians across the branches of government.",
+          "Track legislative bills, budgets, and high-ranking politicians across the branches of government.",
       },
     ],
   }),
@@ -61,18 +97,21 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { loadedOfficials, loadedBills } = Route.useLoaderData();
+
   const [activeHeadline, setActiveHeadline] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isHeadlineRotationPaused, setIsHeadlineRotationPaused] = useState(false);
   const [liveHeadlines, setLiveHeadlines] = useState<any[]>([]);
 
+  const navigate = useNavigate();
   const user = typeof window !== "undefined" ? getUser() : null;
 
   useEffect(() => {
     async function fetchNews() {
       try {
-        const API_KEY = "53ae23b57483f0bb032aeb0ac385549c"; 
-        
+        const API_KEY = "53ae23b57483f0bb032aeb0ac385549c";
+
         const response = await fetch(
           `https://gnews.io/api/v4/search?q="philippines" AND "politics"&lang=en&country=ph&max=5&apikey=${API_KEY}`
         );
@@ -113,9 +152,60 @@ function Landing() {
     }
   };
 
+  // Smart partial routing engine with strict type mappings
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const cleanQuery = searchQuery.trim().toLowerCase();
+    if (!cleanQuery) return;
+
+    const queryWords = cleanQuery.split(/\s+/).filter(word => word.length > 1);
+
+    // --- 1. PARTIAL SEARCH OFFICIALS ---
+    const matchedOfficial = loadedOfficials?.find((off: OfficialRecord) => {
+      const dbName = off.name.toLowerCase();
+      if (dbName.includes(cleanQuery) || cleanQuery.includes(dbName)) return true;
+      if (queryWords.length > 0) {
+        return queryWords.every(word => dbName.includes(word));
+      }
+      return false;
+    });
+
+    if (matchedOfficial) {
+      navigate({
+        to: "/officials/$officialId",
+        params: { officialId: String(matchedOfficial.id) }
+      });
+      return;
+    }
+
+    // --- 2. PARTIAL SEARCH BILLS ---
+    const matchedBill = loadedBills?.find((b: BillRecord) => {
+      const dbTitle = b.title.toLowerCase();
+      if (dbTitle.includes(cleanQuery) || cleanQuery.includes(dbTitle)) return true;
+      if (queryWords.length > 0) {
+        return queryWords.every(word => dbTitle.includes(word));
+      }
+      return false;
+    });
+
+    if (matchedBill) {
+      navigate({
+        to: "/bills/$billId",
+        params: { billId: String(matchedBill.id) }
+      });
+      return;
+    }
+
+    // --- 3. GENERIC FALLBACK ---
+    navigate({
+      to: "/officials",
+      search: { q: searchQuery.trim() }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream via-white to-cream">
-      
+
       {/* Dynamic Header Integration */}
       {user ? (
         <AppNav />
@@ -167,7 +257,7 @@ function Landing() {
                 3 · Review legislative actions
               </span>
             </div>
-            
+
             {!user && (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
                 <Link
@@ -201,7 +291,7 @@ function Landing() {
             Search high-ranking officials, bills, or legislative issues.
           </h2>
           <form
-            onSubmit={(event) => event.preventDefault()}
+            onSubmit={handleSearchSubmit}
             className="group mt-8 flex flex-col gap-3 rounded-full border border-tan/80 bg-white p-2 shadow-sm ring-1 ring-transparent transition-all duration-300 focus-within:border-copper/50 focus-within:ring-copper/20 hover:shadow-md md:flex-row md:items-center"
           >
             <label htmlFor="patag-global-search" className="sr-only">
@@ -225,7 +315,18 @@ function Landing() {
             </button>
           </form>
           <div className="mt-4 text-center text-sm text-coffee/80 md:text-left">
-            Try: <span className="font-semibold text-cocoa">Senate Bill 1979</span> · <span className="font-semibold text-cocoa">COA executive findings</span> · <span className="font-semibold text-cocoa">Legislative amendments</span>
+            Try:{" "}
+            <button type="button" onClick={() => setSearchQuery("Senate Bill 1979")} className="font-semibold text-cocoa hover:text-rust transition-colors">
+              Senate Bill 1979
+            </button>{" "}
+            ·{" "}
+            <button type="button" onClick={() => setSearchQuery("COA executive findings")} className="font-semibold text-cocoa hover:text-rust transition-colors">
+              COA executive findings
+            </button>{" "}
+            ·{" "}
+            <button type="button" onClick={() => setSearchQuery("Legislative amendments")} className="font-semibold text-cocoa hover:text-rust transition-colors">
+              Legislative amendments
+            </button>
             <span className="ml-3 inline-block rounded-md bg-tan/30 px-2 py-0.5 text-[11px] font-medium tracking-wide text-mocha">
               System focuses exclusively on high-level positions.
             </span>
@@ -245,7 +346,7 @@ function Landing() {
             Verified National Pulse
           </span>
         </div>
-        
+
         {currentHeadline ? (
           <a
             href={currentHeadline.url}
@@ -278,18 +379,17 @@ function Landing() {
             Loading live updates...
           </div>
         )}
-        
+
         <div className="mx-auto mt-4 flex max-w-7xl items-center justify-end gap-2 px-6">
           {liveHeadlines.map((headline, index) => (
             <button
               key={index}
               type="button"
               onClick={() => setActiveHeadline(index)}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                index === activeHeadline
-                  ? "w-10 bg-rust shadow-sm"
-                  : "w-5 bg-tan hover:w-7 hover:bg-mocha/60"
-              }`}
+              className={`h-2.5 rounded-full transition-all duration-300 ${index === activeHeadline
+                ? "w-10 bg-rust shadow-sm"
+                : "w-5 bg-tan hover:w-7 hover:bg-mocha/60"
+                }`}
               aria-label={`Show headline ${index + 1}`}
             />
           ))}
@@ -298,10 +398,9 @@ function Landing() {
 
       {/* Highlights Section */}
       <section className="relative overflow-hidden bg-[#181514] py-20 text-cream border-y border-white/5">
-        {/* Subtle grid background for the incognito vibe */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:32px_32px]"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#181514] via-transparent to-[#181514]"></div>
-        
+
         <div className="relative mx-auto max-w-7xl px-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 className="font-display text-3xl text-cream md:text-4xl drop-shadow-md">
@@ -346,25 +445,25 @@ function Landing() {
               A toolkit for everyday accountability, tracking external pressures and highlighting questionable track records.
             </p>
           </div>
-          
+
           <div className="mt-16 grid gap-6 md:grid-cols-3">
-            <ServiceCard 
-              accentClass="bg-forest" 
-              icon={<Users className="h-6 w-6" />} 
-              title="Officials Directory" 
-              desc="Verified profiles for elected and appointed high-ranking officials." 
+            <ServiceCard
+              accentClass="bg-forest"
+              icon={<Users className="h-6 w-6" />}
+              title="Officials Directory"
+              desc="Verified profiles for elected and appointed high-ranking officials."
             />
-            <ServiceCard 
-              accentClass="bg-rust" 
-              icon={<Scale className="h-6 w-6" />} 
-              title="Legislative Tracker" 
-              desc="Records of bills, legislative stages, and executive authorship." 
+            <ServiceCard
+              accentClass="bg-rust"
+              icon={<Scale className="h-6 w-6" />}
+              title="Legislative Tracker"
+              desc="Records of bills, legislative stages, and executive authorship."
             />
-            <ServiceCard 
-              accentClass="bg-copper" 
-              icon={<ShieldCheck className="h-6 w-6" />} 
-              title="Truth Media Hub" 
-              desc="Systems to detect deepfakes and verify circulating articles." 
+            <ServiceCard
+              accentClass="bg-copper"
+              icon={<ShieldCheck className="h-6 w-6" />}
+              title="Truth Media Hub"
+              desc="Systems to detect deepfakes and verify circulating articles."
             />
           </div>
         </div>
@@ -382,14 +481,14 @@ function Landing() {
                 </p>
               </div>
             </div>
-            
+
             <div className="space-y-6 lg:col-span-7">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-xl backdrop-blur-sm transition duration-300 hover:bg-white/10">
                 <p className="text-lg leading-relaxed text-cream/90">
                   Primary sources — legislative dockets, COA reports, Gazette issuances, and verified press coverage regarding high-ranking executive and legislative positions — are aggregated into a single searchable surface. Nothing is paywalled. Nothing is editorialized.
                 </p>
               </div>
-              
+
               <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-xl backdrop-blur-sm transition duration-300 hover:bg-white/10">
                 <p className="text-lg leading-relaxed text-cream/90">
                   The mission is to lower the cost of civic literacy from hours to seconds, removing external pressures and exposing questionable track records objectively.
@@ -406,10 +505,10 @@ function Landing() {
           <img src={shield} alt="" className="h-12 w-12 opacity-30 grayscale mb-6" />
           <p className="font-display text-2xl tracking-widest text-cream/90">P.A.T.A.G.</p>
           <p className="mt-3 text-xs uppercase tracking-[0.3em] font-semibold text-copper">Decentralized • Anonymous • Uncompromised</p>
-          
+
           <div className="mt-10 max-w-2xl text-[11px] leading-relaxed opacity-50">
-            Information presented on this platform is aggregated directly from public domain records, official government gazettes, and verified media sources. 
-            Identities of platform maintainers, node operators, and researchers remain strictly confidential to preserve operational integrity and ensure the safety of the network. 
+            Information presented on this platform is aggregated directly from public domain records, official government gazettes, and verified media sources.
+            Identities of platform maintainers, node operators, and researchers remain strictly confidential to preserve operational integrity and ensure the safety of the network.
             No tracking scripts are deployed. Access remains completely unrestricted.
           </div>
         </div>
@@ -427,17 +526,17 @@ function ServiceCard({ icon, title, desc, accentClass }: { icon: ReactNode; titl
   };
 
   return (
-    <button 
-      type="button" 
-      onClick={handleClick} 
+    <button
+      type="button"
+      onClick={handleClick}
       className="w-full text-left group relative overflow-hidden rounded-3xl border border-tan/80 bg-white p-8 shadow-card transition duration-500 hover:-translate-y-2 hover:shadow-2xl"
     >
       <div className={`absolute -right-16 -top-16 h-32 w-32 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-[2.5] ${accentClass}`} />
-      
+
       <div className={`relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl text-cream shadow-md transition-transform duration-300 group-hover:scale-110 ${accentClass}`}>
         {icon}
       </div>
-      
+
       <div className="relative z-10 mt-8">
         <h3 className="font-display text-2xl text-cocoa transition-colors duration-300 group-hover:text-rust">{title}</h3>
         <p className="mt-3 text-sm leading-relaxed text-coffee">{desc}</p>
