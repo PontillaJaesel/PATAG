@@ -72,7 +72,7 @@ const getOfficialsList = createServerFn({ method: "GET" }).handler(async () => {
       name: String(row.name ?? ""),
       title: String(row.title ?? ""),
         status: String(row.status ?? ""),
-      branch: String(row.branch ?? ""),
+      branch: String(row.branch ?? "").charAt(0).toUpperCase() + String(row.branch ?? "").slice(1).toLowerCase(),
       location: String(row.location ?? ""),
       bio: String(row.bio ?? ""),
       photo: String(row.photo ?? ""),
