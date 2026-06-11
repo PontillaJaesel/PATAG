@@ -14,7 +14,7 @@
 It acts as a civic command center for evidence-backed governance updates, allowing users to search high-ranking executive and legislative records and monitor branch signals.
 
 <p align="center">
-  <img src="PATAG PICS/PATAG - MANIFESTO.jpg" alt="P.A.T.A.G. Manifesto" width="85%">
+  <img src="PATAG PICS/PATAG - MANIFESTO.png" alt="P.A.T.A.G. Manifesto" width="85%">
 </p>
 
 ---
@@ -22,24 +22,24 @@ It acts as a civic command center for evidence-backed governance updates, allowi
 ## Core Features
 
 <p align="center">
-  <img src="PATAG PICS/PATAG - HOME.jpg" alt="P.A.T.A.G. Dashboard Main Interface" width="100%">
+  <img src="PATAG PICS/PATAG - HOME.png" alt="P.A.T.A.G. Dashboard Main Interface" width="100%">
   <br><em>The primary dashboard providing quick access to civic tools and governance updates.</em>
 </p>
 <br>
 
 * **Fact-Checked Official Profiles:** An unbiased data hub detailing an official's full credentials, career history, and fact-based controversies. This includes a Campaign Promise Tracker to audit pre-election commitments against actual deliverables.
   <p align="center">
-    <img src="PATAG PICS/PATAG - OFFICIALS.jpg" alt="Officials Directory" width="90%">
+    <img src="PATAG PICS/PATAG - OFFICIALS.png" alt="Officials Directory" width="90%">
   </p>
 
 * **Legislative Progress Tracker:** A visual, timeline-based tracker to monitor a bill's journey from filing in the House or Senate to the President's signature, complete with direct authorship attribution.
   <p align="center">
-    <img src="PATAG PICS/PATAG - TRACKER.jpg" alt="Legislative Progress Tracker" width="90%">
+    <img src="PATAG PICS/PATAG - TRACKER.png" alt="Legislative Progress Tracker" width="90%">
   </p>
 
 * **Truth and Media Integrity Suite:** An embedded, fact-checked political newsfeed alongside deepfake and fake news detection tools to help the public verify the legitimacy of circulating media.
   <p align="center">
-    <img src="PATAG PICS/PATAG - TRUTH HUB.jpg" alt="Truth Media Hub Verification Tool" width="90%">
+    <img src="PATAG PICS/PATAG - TRUTH HUB.png" alt="Truth Media Hub Verification Tool" width="90%">
   </p>
 
 ---
